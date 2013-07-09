@@ -3,7 +3,7 @@ IRC Topic-to-Twitter Daemon
 
 This is a lightweight python daemon used push IRC topic changes from 1+ channels to a twitter account. Used by IRC-based video gaming communities to alert their viewers of streams in real time without needing to stay on IRC.
 
-Dependancies
+Dependances
 ====
 
  * [KitnIRC - A Python IRC Bot Framework](https://github.com/ayust/kitnirc)
@@ -19,18 +19,18 @@ Usage
 
 Arguments:
     
-    irc.network.url     : The URL of the IRC network server [e.g. irc.quakenet.org]
+    irc.network.url     : The URL of the IRC network server (e.g. irc.quakenet.org)
 	nickname			: The nick to give the daemon on the server
-	OAuthInfo			: The consumer key and access tokens needed to communicate with twitter specified in this format: 
-                        consumer_key:consumer_secret:access_token_key:access_token_secret
+	OAuthInfo			: The consumer and access token info needed to communicate with twitter specified in this format: 
+                          consumer_key:consumer_secret:access_token_key:access_token_secret
                         
-    Note: This information is available on your app's info page at dev.twitter.com
+    Note: This information is available on your app info page at dev.twitter.com
 
 Additional Arguments:
     
     --port [value] 		: IRC server port [default is 6667]
-    --username [string]	: Client's username
-    --realname [string]	: Client's realname
+    --username [string]	: Client username
+    --realname [string]	: Client realname
     --password [string]	: Server password (if needed)
     --join [string]		: Comma-separated list of channels to join 
     

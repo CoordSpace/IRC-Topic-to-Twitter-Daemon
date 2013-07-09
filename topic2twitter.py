@@ -9,12 +9,12 @@
 #			nickname			: The nick to give the daemon on the server
 #			OAuthInfo			: The consumer key and access tokens needed to communicate with twitter
 #								  specified in this format - consumer_key:consumer_secret:access_token_key:access_token_secret
-#								  Note: This information is available on your app's info page at dev.twitter.com
+#								  Note: This information is available on your app info page at dev.twitter.com
 #
 # Additional Arguments:
 #			--port [value] 		: IRC server port [default is 6667]
-#			--username [string]	: Client's username
-#			--realname [string]	: Client's realname
+#			--username [string]	: Client username
+#			--realname [string]	: Client realname
 #			--password [string]	: Server password (if needed)
 #			--join [string]		: Comma-separated list of channels to join 
 #
@@ -23,7 +23,7 @@
 #			crashes.
 #
 #  The MIT License (MIT)
-#  Copyright 2013 Chris Earley <bearddough+dopewatcher@gmail.com>
+#  Copyright 2013 Chris Earley <bearddough+topic2twitter@gmail.com>
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
 #  in the Software without restriction, including without limitation the rights
