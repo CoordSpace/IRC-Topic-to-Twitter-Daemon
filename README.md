@@ -15,7 +15,7 @@ Dependancies
 Usage
 ====
 
-    dopewatcher.py irc.network.url nickname OAuthInfo [additional args]
+    topic2twitter.py irc.network.url nickname OAuthInfo [additional args]
 
 Arguments:
     

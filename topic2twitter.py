@@ -1,6 +1,6 @@
 #!/usr/bin/python
-# dopewatcher.py - A service daemon that listens to IRC channel(s)
-#				   and posts topic changes to a specified twitter account
+# topic2twitter.py - A service daemon that listens to IRC channel(s)
+#				     and posts topic changes to a specified twitter account
 # Usage: 
 #			topic2twitter.py irc.network.url nickname OAuthInfo [additional args]
 #
