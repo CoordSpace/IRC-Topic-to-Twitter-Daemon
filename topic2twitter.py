@@ -30,6 +30,7 @@ import twitter
 import irc.client
 import sys
 import time
+from time import gmtime, strftime
 
 # The global twitter API object to push posts to
 TwitAccount = None
@@ -117,6 +118,9 @@ class TopicBot:
 		global TwitAccount
 		
 		topic = '' # init the topic string
+		
+		# 00:00 GMT timestamp. Used to prevent the duplicate message error from twitter.
+		topic = strftime("[%H:%M]", gmtime()) + ' ' 
 		
 		if self.prependchan:
 			topic = event.target + ': ' # start the topic string with the source channel
