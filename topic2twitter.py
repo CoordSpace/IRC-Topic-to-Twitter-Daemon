@@ -60,8 +60,7 @@ class twitterAPI:
 		# truncate message to 140 characters
 		msg = msg[:140]
 		#push that message to twitter
-		print msg
-		#self.api.PostUpdate(msg)
+		self.api.PostUpdate(msg)
 	
 	# Make an API call to get the screen name of the auth'ed twitter account and return the string.
 	def get_screen_name(self):
@@ -102,7 +101,6 @@ class TopicBot:
 		except irc.client.ServerConnectionError:
 			print(sys.exc_info()[1])
 			raise SystemExit(1)
-		print "Connected!"
 
 	def keep_connection(self, sample_rate=0.2):
 		while 1:
@@ -110,11 +108,9 @@ class TopicBot:
 			if (time.time() - self.last_ping) > self.timeout_thresh:
 				# If the connection cuts, reconnect. 
 				try:
-					print "retrying connection!"
 					self.server.reconnect()
 				except irc.client.ServerConnectionError:
-					print(sys.exc_info()[1])
-				time.sleep(30) # sleep for a bit between each try.
+					time.sleep(30) # sleep for a bit between each try.
 
 	# Take the new topic message and send it to twitter.    
 	def on_topic (self, connection, event):
@@ -141,16 +137,13 @@ class TopicBot:
 		
 	# Join all given channels when welcome message is delivered
 	def on_welcome (self, connection, event):
-		print "Welcome recieved!"
 		for channel in self.join:
 			if irc.client.is_channel(channel):
-				print "Joining " + channel
 				connection.join(channel)
 	
 	# record the current time when the server pings the client so 
 	# we can calculate a possible disconnection 
 	def on_ping(self, connection, event):
-		print "ping!"
 		self.last_ping = time.time()
 		
 # Setup the CLI arguments and create the parser object
