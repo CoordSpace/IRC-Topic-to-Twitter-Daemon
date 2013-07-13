@@ -1,13 +1,29 @@
 #!/usr/bin/python
 
-# This script needs to:
-#	* DONE connect to a specified IRC server
-#		- Feature: argument that forces the connection to automatically reconnect upon DC. (-reconnect/-r)
-#	* DONE - verify twitter OAuth info to be valid, print an error and quit otherwise.
-#	* DONE listen for topic changes and post the new topic to twitter.
-#		- DONE if the user specifies more then one channel to watch, append the channel name to the twitter messages.
-# Usage: 
-#			topic2twitter.py irc.network.url nickname OAuthInfo [additional args]
+# topic2twitter.py
+# A lightweight python daemon used push formatted IRC topic changes from 1+ channels to a central twitter account.
+
+#The MIT License (MIT)
+#
+# Copyright (c) 2013 Chris Earley <bearddough+topic2twitter@gmail.com>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 
 import argparse
 import twitter
@@ -44,23 +60,27 @@ class twitterAPI:
 		# truncate message to 140 characters
 		msg = msg[:140]
 		#push that message to twitter
-		self.api.PostUpdate(msg)
+		print msg
+		#self.api.PostUpdate(msg)
 	
 	# Make an API call to get the screen name of the auth'ed twitter account and return the string.
 	def get_screen_name(self):
 		return self.User.GetScreenName()
 
 class TopicBot:
-	# create IRC client object
 	def __init__ (self, args):
+		# create IRC client objects
 		self.client = irc.client.IRC()
-		# Time object used for detecting internet timeouts
-		self.last_ping = 99999999999
+		self.server = self.client.server()
+		# set the input buffer to a non-decoding line buffer to prevent UTF-8 crashes
+		self.server.buffer_class = irc.client.LineBuffer
 		# This value is large enough to not cause any issue with most servers but not important to expose to the CLI, IMO.
-		self.timeout_thresh = 5 * 60 # Five minute timeout.
+		self.timeout_thresh = 10 * 60 # ten minute timeout.
+		# Time var used for detecting internet timeouts. 
+		self.last_ping = sys.float_info.max
 		
 		# Begin the mass setting of self varibles
-		self.server = args.server
+		self.serverURL = args.serverURL
 		self.port = args.port
 		self.nickname = args.nickname
 		self.join = args.join
@@ -71,7 +91,6 @@ class TopicBot:
 		self.infocmd = args.infocmd
 		# add all global handlers to the client object
 		self.client.add_global_handler("welcome", self.on_welcome)
-		self.client.add_global_handler("disconnect", self.on_disconnect)
 		self.client.add_global_handler("pubmsg", self.on_pubmsg )
 		self.client.add_global_handler("topic", self.on_topic)
 		self.client.add_global_handler("ping", self.on_ping)
@@ -79,21 +98,23 @@ class TopicBot:
 	#attempt to connect to the server with the supplied info
 	def connect (self):
 		try:
-			self.server = self.client.server().connect(self.server, self.port, self.nickname, self.password, self.username, self.realname)
+			self.server.connect(self.serverURL, self.port, self.nickname, self.password, self.username, self.realname)
 		except irc.client.ServerConnectionError:
 			print(sys.exc_info()[1])
 			raise SystemExit(1)
 		print "Connected!"
-		
+
 	def keep_connection(self, sample_rate=0.2):
 		while 1:
 			self.client.process_once(sample_rate)
 			if (time.time() - self.last_ping) > self.timeout_thresh:
 				# If the connection cuts, reconnect. 
-				# The connection() method saves the last used server settings.
-				print "retrying connection!"
-				self.server.disconnect("Goodbye!")
-				self.connect()
+				try:
+					print "retrying connection!"
+					self.server.reconnect()
+				except irc.client.ServerConnectionError:
+					print(sys.exc_info()[1])
+				time.sleep(30) # sleep for a bit between each try.
 
 	# Take the new topic message and send it to twitter.    
 	def on_topic (self, connection, event):
@@ -126,19 +147,16 @@ class TopicBot:
 				print "Joining " + channel
 				connection.join(channel)
 	
-	# DC from server by killing the process
-	def on_disconnect (self, connection, event):
-		raise SystemExit()
-
 	# record the current time when the server pings the client so 
 	# we can calculate a possible disconnection 
 	def on_ping(self, connection, event):
+		print "ping!"
 		self.last_ping = time.time()
 		
 # Setup the CLI arguments and create the parser object
 def get_args ():
 	parser = argparse.ArgumentParser(description="IRC daemon that posts channel topics to twitter")
-	parser.add_argument('server', help='the IRC server to connect to')
+	parser.add_argument('serverURL', help='the IRC server to connect to')
 	parser.add_argument('nickname', default='topicBot', help='the nickname of the bot upon connection')
 	parser.add_argument('OAuth', help='the twitter app OAuth info in this format: consumer_key:consumer_secret:access_token_key:access_token_secret')
 	parser.add_argument('join', nargs='+', help='channel(s) to join and monitor, separated by spaces. remember to escape hashes in *nix systems. e.g. \#chan')
