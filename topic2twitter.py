@@ -3,7 +3,7 @@
 # topic2twitter.py
 # A lightweight python daemon used push formatted IRC topic changes from 1+ channels to a central twitter account.
 
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
 # Copyright (c) 2013 Chris Earley <bearddough+topic2twitter@gmail.com>
 #
@@ -60,10 +60,16 @@ class twitterAPI:
 	def makepost (self, msg):
 		# truncate message to 140 characters
 		msg = msg[:140]
-		#push that message to twitter
-		self.api.PostUpdate(msg)
+		# push the message to twitter, checking for any errors from the service
+		try:
+			self.api.PostUpdate(msg)
+		except twitter.TwitterError:
+		# Just swallow the exception and move on
+		# otherwise twitter's strict spam/duplicate restrictions will constantly crash the daemon.
+		# There's nothing serious that can happen other then a lost post. 
+			pass
 	
-	# Make an API call to get the screen name of the auth'ed twitter account and return the string.
+	# Get the screen name of the auth'ed twitter account from the User object and return the string.
 	def get_screen_name(self):
 		return self.User.GetScreenName()
 
@@ -74,7 +80,7 @@ class TopicBot:
 		self.server = self.client.server()
 		# set the input buffer to a non-decoding line buffer to prevent UTF-8 crashes
 		self.server.buffer_class = irc.client.LineBuffer
-		# This value is large enough to not cause any issue with most servers but not important to expose to the CLI, IMO.
+		# This value is large enough to not cause any issue with the majority or servers but not important to expose to the CLI.
 		self.timeout_thresh = 10 * 60 # ten minute timeout.
 		# Time var used for detecting internet timeouts. 
 		self.last_ping = sys.float_info.max
@@ -89,9 +95,10 @@ class TopicBot:
 		self.realname = args.realname
 		self.password = args.password
 		self.infocmd = args.infocmd
+		self.timestamp = args.timestamp
 		# add all global handlers to the client object
 		self.client.add_global_handler("welcome", self.on_welcome)
-		self.client.add_global_handler("pubmsg", self.on_pubmsg )
+		self.client.add_global_handler("pubmsg", self.on_pubmsg)
 		self.client.add_global_handler("topic", self.on_topic)
 		self.client.add_global_handler("ping", self.on_ping)
 	
@@ -119,11 +126,12 @@ class TopicBot:
 		
 		topic = '' # init the topic string
 		
-		# 00:00 GMT timestamp. Used to prevent the duplicate message error from twitter.
-		topic = strftime("[%H:%M]", gmtime()) + ' ' 
+		if self.timestamp:
+			# [00:00] GMT timestamp. Used for giving old postimes more definition even after twitter only lists the day of the post.
+			topic = strftime("[%H:%M]", gmtime()) + ' ' 
 		
 		if self.prependchan:
-			topic = event.target + ': ' # start the topic string with the source channel
+			topic += event.target + ': ' # start the topic string with the source channel
 			
 		topic += event.arguments[0] # tack on the topic itself
 		# post to twitter!
@@ -163,7 +171,8 @@ def get_args ():
 	parser.add_argument('--username', default = None, help='bot username') 
 	parser.add_argument('--realname', default = None, help='bot realname')
 	parser.add_argument('--password', default = None, help='IRC server password (if needed)')
-	parser.add_argument('--infocmd', default = '', help="the text command that any user in watched channels can type to recieve the twitter acct link")
+	parser.add_argument('--infocmd', default = '', help="the text command that any user in watched channels can type to recieve the twitter account link")
+	parser.add_argument('--timestamp', action='store_true', help='Prepend a formatted [HH:MM] timestamp before the topic message.')
 	return parser.parse_args() 
 		
 def main ():
