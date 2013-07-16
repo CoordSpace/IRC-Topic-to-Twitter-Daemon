@@ -54,6 +54,11 @@ This daemon will automatically attempt to reconnect to the IRC server after a ti
 
 Any long topic messages will be truncated to 140 character before being sent to twitter. This may cause a loss of valuable information. 
 
+To Do
+====
+
+ * Make the system aware of twitter's t.co 'URL lengthener' when formatting the message string. Sometimes short URLs in a topic can cause the message to become too large to post after twitter expands them into 20 character t.co links. 
+
 License
 -------
 
