@@ -50,14 +50,14 @@ optional arguments:
  
 Notes
 ====
-This daemon will automatically attempt to reconnect to the IRC server after a timeout of 10 minutes. If you have a flaky net connection, be warned that the repeated ping-outs/joins from the daemon might be considered spam and cause a ban from overzealous channel operators.
+This daemon will automatically attempt to reconnect to the IRC server after a timeout of around a minute. If you have a flaky net connection, be warned that the repeated ping-outs/joins from the daemon might be considered spam and cause a ban from overzealous channel operators.
 
-Any long topic messages will be truncated to 140 character before being sent to twitter. This may cause a loss of valuable information. 
+Any long topic messages will be truncated to 125 characters before being sent to twitter. This may cause a loss of valuable information so format your topics accordingly. 
 
 To Do
 ====
 
- * Make the system aware of twitter's t.co 'URL lengthener' when formatting the message string. Sometimes short URLs in a topic can cause the message to become too large to post after twitter expands them into 20 character t.co links. 
+ * Make the system aware of twitter's t.co 'URL lengthener' when formatting the message string. Sometimes short URLs in a topic can cause the message to become too large to post after twitter expands them into 20+ character t.co links. 
 
 License
 -------
