@@ -27,6 +27,7 @@
 
 import argparse
 import twitter
+import irc.bot
 import irc.client
 import sys
 import time
@@ -58,33 +59,24 @@ class twitterAPI:
 	
 	# Post 140 characters of the given text to twitter. 
 	def makepost (self, msg):
-		# truncate message to 140 characters
-		msg = msg[:140]
-		# push the message to twitter, checking for any errors from the service
+		# truncate message to 125 characters. This limit is a quick fix until I can make a workaround for twitter-text BS.
+		msg = msg[:125]
+		#push the message to twitter, checking for any errors from the service
 		try:
 			self.api.PostUpdate(msg)
 		except twitter.TwitterError:
 		# Just swallow the exception and move on
 		# otherwise twitter's strict spam/duplicate restrictions will constantly crash the daemon.
-		# There's nothing serious that can happen other then a lost post. 
+		# There's nothing serious that can happen other than a lost post. 
 			pass
 	
 	# Get the screen name of the auth'ed twitter account from the User object and return the string.
 	def get_screen_name(self):
 		return self.User.GetScreenName()
 
-class TopicBot:
-	def __init__ (self, args):
-		# create IRC client objects
-		self.client = irc.client.IRC()
-		self.server = self.client.server()
-		# set the input buffer to a non-decoding line buffer to prevent UTF-8 crashes
-		self.server.buffer_class = irc.client.LineBuffer
-		# This value is large enough to not cause any issue with the majority or servers but not important to expose to the CLI.
-		self.timeout_thresh = 10 * 60 # ten minute timeout.
-		# Time var used for detecting internet timeouts. 
-		self.last_ping = sys.float_info.max
-		
+class TopicBot(irc.bot.SingleServerIRCBot):
+	def __init__(self, args):
+	
 		# Begin the mass setting of self varibles
 		self.serverURL = args.serverURL
 		self.port = args.port
@@ -96,29 +88,16 @@ class TopicBot:
 		self.password = args.password
 		self.infocmd = args.infocmd
 		self.timestamp = args.timestamp
-		# add all global handlers to the client object
-		self.client.add_global_handler("welcome", self.on_welcome)
-		self.client.add_global_handler("pubmsg", self.on_pubmsg)
-		self.client.add_global_handler("topic", self.on_topic)
-		self.client.add_global_handler("ping", self.on_ping)
+		
+		# check for no realname specified
+		if self.realname == None:
+			self.realname = self.nickname
+		
+		# set the input buffer to a non-decoding line buffer to prevent UTF-8 crashes
+		irc.client.ServerConnection.buffer_class = irc.buffer.LineBuffer
 	
-	#attempt to connect to the server with the supplied info
-	def connect (self):
-		try:
-			self.server.connect(self.serverURL, self.port, self.nickname, self.password, self.username, self.realname)
-		except irc.client.ServerConnectionError:
-			print(sys.exc_info()[1])
-			raise SystemExit(1)
-
-	def keep_connection(self, sample_rate=0.2):
-		while 1:
-			self.client.process_once(sample_rate)
-			if (time.time() - self.last_ping) > self.timeout_thresh:
-				# If the connection cuts, reconnect. 
-				try:
-					self.server.reconnect()
-				except irc.client.ServerConnectionError:
-					time.sleep(30) # sleep for a bit between each try.
+		# create IRC bot objects
+		irc.bot.SingleServerIRCBot.__init__(self, [(self.serverURL, self.port, self.password)], self.nickname, self.realname, username=self.username)
 
 	# Take the new topic message and send it to twitter.    
 	def on_topic (self, connection, event):
@@ -150,14 +129,11 @@ class TopicBot:
 	# Join all given channels when welcome message is delivered
 	def on_welcome (self, connection, event):
 		for channel in self.join:
-			if irc.client.is_channel(channel):
-				connection.join(channel)
-	
-	# record the current time when the server pings the client so 
-	# we can calculate a possible disconnection 
-	def on_ping(self, connection, event):
-		self.last_ping = time.time()
-		
+			connection.join(channel)
+
+	def on_nicknameinuse(self, c, e):
+		c.nick(c.get_nickname() + "_")
+
 # Setup the CLI arguments and create the parser object
 def get_args ():
 	parser = argparse.ArgumentParser(description="IRC daemon that posts channel topics to twitter")
@@ -173,7 +149,7 @@ def get_args ():
 	parser.add_argument('--password', default = None, help='IRC server password (if needed)')
 	parser.add_argument('--infocmd', default = '', help="the text command that any user in watched channels can type to recieve the twitter account link")
 	parser.add_argument('--timestamp', action='store_true', help='Prepend a formatted [HH:MM] timestamp before the topic message.')
-	return parser.parse_args() 
+	return parser.parse_args()
 		
 def main ():
 	global TwitAccount
@@ -187,11 +163,7 @@ def main ():
 	# init the bot client with the given arguments
 	bot = TopicBot(arguments)
 	
-	# connect to the server and verify the connection
-	bot.connect()
-	
-	# cycle forever, reading input and checking for ping timeouts
-	bot.keep_connection()
+	bot.start()
 
 if __name__ == "__main__":
 	main()
