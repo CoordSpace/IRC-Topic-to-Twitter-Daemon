@@ -131,8 +131,14 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 		for channel in self.join:
 			connection.join(channel)
 
-	def on_nicknameinuse(self, c, e):
+	def on_nicknameinuse (self, c, e):
 		c.nick(c.get_nickname() + "_")
+		
+	# Even though the bot class has a nicer ctcp reply system, it causes crashes
+	def on_ctcp (self, c, e):
+		nick = e.source.nick
+		# just return an info link, anything needed can be found there.
+		c.ctcp_reply(nick, "Bot info can be found here: https://bitbucket.org/cw_earley/irc-topic-to-twitter-daemon")
 
 # Setup the CLI arguments and create the parser object
 def get_args ():
