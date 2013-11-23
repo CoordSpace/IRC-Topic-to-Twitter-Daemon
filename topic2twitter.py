@@ -32,6 +32,7 @@ import irc.client
 import sys
 import time
 from time import gmtime, strftime
+from infoextraction import *
 
 # The global twitter API object to push posts to
 TwitAccount = None
@@ -60,7 +61,7 @@ class twitterAPI:
 	# Post 140 characters of the given text to twitter. 
 	def makepost (self, msg):
 		# truncate message to 125 characters. This limit is a quick fix until I can make a workaround for twitter-text BS.
-		msg = msg[:125]
+		msg = msg[:130]
 		#push the message to twitter, checking for any errors from the service
 		try:
 			self.api.PostUpdate(msg)
@@ -88,6 +89,8 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 		self.password = args.password
 		self.infocmd = args.infocmd
 		self.timestamp = args.timestamp
+		# The dopelives specific message generator
+		self.processor = ExtractInfo()
 		
 		# check for no realname specified
 		if self.realname == None:
@@ -103,6 +106,13 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 	def on_topic (self, connection, event):
 		global TwitAccount
 		
+		# generate the formatted message
+		message = self.processor.generateMessage(event.arguments[0])
+		
+		# if the message is empty don't post anything
+		if message == None:
+			return
+		
 		topic = '' # init the topic string
 		
 		if self.timestamp:
@@ -112,7 +122,7 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 		if self.prependchan:
 			topic += event.target + ': ' # start the topic string with the source channel
 			
-		topic += event.arguments[0] # tack on the topic itself
+		topic += message # tack on the topic itself
 		# post to twitter!
 		TwitAccount.makepost(topic)
 		return
