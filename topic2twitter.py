@@ -134,11 +134,14 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 	def on_nicknameinuse (self, c, e):
 		c.nick(c.get_nickname() + "_")
 		
-	# Even though the bot class has a nicer ctcp reply system, it causes crashes
-	def on_ctcp (self, c, e):
-		nick = e.source.nick
-		# just return an info link, anything needed can be found there.
-		c.ctcp_reply(nick, "Bot info can be found here: https://bitbucket.org/cw_earley/irc-topic-to-twitter-daemon")
+	# this is an overloaded copy of the get_versions function in the SingleServerIRCBot class
+	# the vanilla version generates a type error when the version it receives is not numeric
+	def get_version(self):
+		"""Returns the bot's git home
+
+		Used when answering a CTCP VERSION request.
+		"""
+		return "Project info can be found here: https://bitbucket.org/cw_earley/irc-topic-to-twitter-daemon"
 
 # Setup the CLI arguments and create the parser object
 def get_args ():
