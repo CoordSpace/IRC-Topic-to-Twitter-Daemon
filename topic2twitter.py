@@ -31,6 +31,7 @@ import irc.bot
 import irc.client
 import sys
 import time
+import logging
 from time import gmtime, strftime
 from infoextraction import *
 
@@ -45,6 +46,7 @@ class twitterAPI:
 		# Do a quick formatting sanity check on the number of OAuth bits given.
 		if len(OAuthlist) != 4:
 			print "ERROR: Please verify OAuth info and specify in the format shown - consumer_key:consumer_secret:access_token_key:access_token_secret"
+			logging.error('Malformed OAuth info given!')
 			raise SystemExit(1)
 		
 		# create the API object using the supplied credentials
@@ -54,8 +56,9 @@ class twitterAPI:
 		# also use this time-heavy API call to nab the screen name for later use.
 		try:
 			self.User = self.api.VerifyCredentials()
-		except twitter.TwitterError:
+		except twitter.TwitterError, e:
 			print "ERROR: Please verify OAuth info and specify in the format shown - consumer_key:consumer_secret:access_token_key:access_token_secret"
+			logging.exception(e)
 			raise SystemExit(1)
 	
 	# Post 140 characters of the given text to twitter. 
@@ -65,10 +68,11 @@ class twitterAPI:
 		#push the message to twitter, checking for any errors from the service
 		try:
 			self.api.PostUpdate(msg)
-		except twitter.TwitterError:
+		except twitter.TwitterError, e:
 		# Just swallow the exception and move on
 		# otherwise twitter's strict spam/duplicate restrictions will constantly crash the daemon.
 		# There's nothing serious that can happen other than a lost post. 
+			logging.exception(e)
 			pass
 	
 	# Get the screen name of the auth'ed twitter account from the User object and return the string.
@@ -96,21 +100,21 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 		if self.realname == None:
 			self.realname = self.nickname
 		
-		# set the input buffer to a non-decoding line buffer to prevent UTF-8 crashes
-		irc.client.ServerConnection.buffer_class = irc.buffer.LineBuffer
-	
 		# create IRC bot objects
 		irc.bot.SingleServerIRCBot.__init__(self, [(self.serverURL, self.port, self.password)], self.nickname, self.realname, username=self.username)
-
+		
 	# Take the new topic message and send it to twitter.    
 	def on_topic (self, connection, event):
 		global TwitAccount
+		
+		logging.info('New topic! Raw text: ' + event.arguments[0])
 		
 		# generate the formatted message
 		message = self.processor.generateMessage(event.arguments[0])
 		
 		# if the message is empty don't post anything
 		if message == None:
+			logging.info("Topic is not unique. Not posting!")
 			return
 		
 		topic = '' # init the topic string
@@ -123,8 +127,10 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 			topic += event.target + ': ' # start the topic string with the source channel
 			
 		topic += message # tack on the topic itself
+		logging.info('Final topic text: ' + topic)
+		
 		# post to twitter!
-		TwitAccount.makepost(topic)
+		#TwitAccount.makepost(topic)
 		return
 	
 	# Read lines from channels and if they contain a !command
@@ -133,19 +139,25 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 		
 		msg = event.arguments[0]
 		if msg == self.infocmd:
-			connection.privmsg(event.target, 'https://twitter.com/' + TwitAccount.get_screen_name())
+			logging.info('Recieved !infocmd from ' + event.target + '.')
+			try:
+				connection.privmsg(event.target, 'https://twitter.com/' + TwitAccount.get_screen_name())
+			except Exception, e:
+				logging.error(e)
 		return
 		
 	# Join all given channels when welcome message is delivered
 	def on_welcome (self, connection, event):
 		for channel in self.join:
+			logging.info('Joined ' + channel)
 			connection.join(channel)
 
 	def on_nicknameinuse (self, c, e):
+		logging.info('Nickname collision, trying with appended character.')
 		c.nick(c.get_nickname() + "_")
 		
 	# this is an overloaded copy of the get_versions function in the SingleServerIRCBot class
-	# the vanilla version generates a type error when the version it receives is not numeric
+	# the vanilla version generates a malformed version object.
 	def get_version(self):
 		"""Returns the bot's git home
 
@@ -166,22 +178,32 @@ def get_args ():
 	parser.add_argument('--username', default = None, help='bot username') 
 	parser.add_argument('--realname', default = None, help='bot realname')
 	parser.add_argument('--password', default = None, help='IRC server password (if needed)')
-	parser.add_argument('--infocmd', default = '', help="the text command that any user in watched channels can type to recieve the twitter account link")
+	parser.add_argument('--infocmd', default = '!notifications', help="the text command that any user in watched channels can type to recieve the twitter account link. Default: !notifications")
 	parser.add_argument('--timestamp', action='store_true', help='Prepend a formatted [HH:MM] timestamp before the topic message.')
+	parser.add_argument('-l', '--logging', default = 'ERROR', help='Set the logging level for the t2t logfile.')
 	return parser.parse_args()
 		
 def main ():
 	global TwitAccount
-
+	
 	# parse all the CLI arguments
 	arguments = get_args()
 	
+	logging.basicConfig(filename="topic2twitter.log",
+                            filemode='a',
+                            format='%(asctime)s.%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=getattr(logging, arguments.logging.upper()))
+
 	# init and verify the twitter connection
+	logging.info('Creating twitter API object.')
 	TwitAccount = twitterAPI(arguments.OAuth)
 	
 	# init the bot client with the given arguments
+	logging.info('Creating bot object.')
 	bot = TopicBot(arguments)
 	
+	logging.info('Bot starting.')
 	bot.start()
 
 if __name__ == "__main__":

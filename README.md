@@ -20,7 +20,7 @@ Usage
     topic2twitter.py serverURL nickname OAuth join [join ...]
                         [-h] [--prependchan] [-p PORT] [--username USERNAME]
                         [--realname REALNAME] [--password PASSWORD]
-                        [--infocmd INFOCMD] [--timestamp]
+                        [--infocmd INFOCMD] [--timestamp] [-l LOGGING]
 
 required arguments:
 
@@ -45,7 +45,8 @@ optional arguments:
                           type to recieve the twitter accountt link.
                           Make this unique so it doesn't spam the channel during normal conversation (e.g. !twitter)
     --timestamp           Prepend a formatted [HH:MM] timestamp before the channel name (if enabled) and topic message.
-
+    -l LOGGING, --logging LOGGING
+                  	  Set the logging level for the t2t logfile.
                         
  
 Notes

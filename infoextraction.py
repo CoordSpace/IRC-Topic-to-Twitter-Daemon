@@ -1,5 +1,3 @@
-import time
-
 # This class is dedicated to the extraction of information from specially formatted IRC topic strings and the creation of concise messages
 # It is inherently single use and relies on a specific set of unwritten topic formatting standards that only exist on the #dopefish_lives IRC channel
 # Due to this inflexible nature, I do not recommend using this fork of the twitter daemon unless you can adopt some conventions:
@@ -32,6 +30,11 @@ import time
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+
+import time
+import logging
+
+log = logging.getLogger(__name__)
 
 class ExtractInfo():
 
@@ -70,8 +73,10 @@ class ExtractInfo():
 	#	- Occurring after a reasonable timeout (to prevent any double posting during cheeky mod humor)
 	def uniqueTest(self, currentInfo):
 	
+		log.info("Time since last topic: " + str(currentInfo[1] - self.prevInfo[1]) + " sec")
 		# kick out topic changes that happen before the timeout period lapses
 		if currentInfo[1] - self.prevInfo[1] < self.timeout:
+			log.info("Topic change before timeout period.")
 			return False
 			
 		currentItems, prevItems = currentInfo[0], self.prevInfo[0]
@@ -79,23 +84,28 @@ class ExtractInfo():
 		# If the info arrays differ in length (say, prev was a movie night link and current is a game) ...
 		if len(currentItems) != len(prevItems):
 			#print ' LENGTHS - ' + str(len(currentItems)) + ', ' + str(len(prevItems))
+			log.info("New topic format.")
 			return True
 			
 		# if there are two Strings in the List, check for sameness on both
 		if len(currentItems) == 2:
 			
 			if currentItems[1] != prevItems[1]:
+				log.info("Updated game.")
 				return True
 				
 			if currentItems[0] != prevItems[0]:
+				log.info("Updated streamer.")
 				return True
 			
 		# in the case of only one String (movie link)
 		else:
 			if currentItems[0] != prevItems[0]:
+				log.info("Updated movie night topic.")
 				return True
 				
-		# if all else fails, default to sameness. False negatives are preferred in this situation.		
+		# if all else fails, default to sameness. False negatives are preferred in this situation.	
+		log.info("Topic information not unique.")
 		return False
 			
 	
@@ -121,24 +131,26 @@ class ExtractInfo():
 				
 				# if the topic is entirely empty, print a message about it!
 				if extracted[0] == '':
+					log.info("Empty topic string.")
 					return "No community messages. If only there were streams..."
 					
 				# return the raw string
+				log.info("Movie night topic.")
 				return extracted[0]
 	
 			# is it an empty topic?
 			if (extracted[0] == '') & (extracted[1] == ''):
+				log.info("Empty topic. e.g. Streamer | Game |")
 				self.prevInfo = info
 				return "Stream over. Thanks for watching everyone!"
 								
 			# Fantastic! A real new stream!
 			else:
-				
 				# replace any empty fields with placeholders
 				for i in range(2): 
 					if extracted[i] == '':
 						extracted[i] = '???'
-				
+				log.info("New populated topic.")
 				self.prevInfo = info
 				return extracted[0] + ' is playing ' + extracted[1] + ' @ dopelives.com!'
 		
