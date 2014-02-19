@@ -28,7 +28,6 @@
 import argparse
 import twitter
 import irc.bot
-import irc.client
 import sys
 import time
 import logging
@@ -99,6 +98,9 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 		# check for no realname specified
 		if self.realname == None:
 			self.realname = self.nickname
+		
+		#setting the line decoder to just  to prevent the dreaded UnicodeDecodeError
+		irc.client.ServerConnection.buffer_class.errors = 'replace'
 		
 		# create IRC bot objects
 		irc.bot.SingleServerIRCBot.__init__(self, [(self.serverURL, self.port, self.password)], self.nickname, self.realname, username=self.username)
