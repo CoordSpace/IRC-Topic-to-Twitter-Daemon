@@ -130,7 +130,7 @@ class TopicBot(irc.bot.SingleServerIRCBot):
 		logging.info('Final topic text: ' + topic)
 		
 		# post to twitter!
-		#TwitAccount.makepost(topic)
+		TwitAccount.makepost(topic)
 		return
 	
 	# Read lines from channels and if they contain a !command
