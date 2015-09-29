@@ -19,15 +19,15 @@ Dependencies
 Usage
 ====
 
-    First create the configuration file using the handy wizard:
+First create the configuration file using the handy wizard:
         
-        `python src/makeconfig.py`
+`python2.7 src/makeconfig.py` - This will guide you through the whole process. Be sure to have your dev.twitter app info ready.
 
-    Then launch the bot:
+Then launch the bot:
 
-        `python2.7 /path/to/main.py /path/to/topic2twitter.conf &`
+`python2.7 /path/to/main.py /path/to/topic2twitter.conf &`
 
-    A sample systemd unit file and wrapper bash script are available in /src though you will need to change the ExecStart and bash paths.
+A sample systemd unit file and wrapper bash script are available in /src though you will need to change the ExecStart and bash paths to match your setup.
 
  
 Notes
