@@ -1,0 +1,11 @@
+[Unit]
+Description=Simple Twitter Bot
+
+[Service]
+Type=forking
+ExecStart=/path/to/src/startbot.sh
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
