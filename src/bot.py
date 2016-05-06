@@ -30,6 +30,7 @@ from twisted.protocols.policies import TimeoutMixin
 from twisted.internet import reactor
 from twisted.python import log
 from time import gmtime, strftime, sleep
+import random
 # app specific packages
 from twitterhelper import TwitAPI
 from configuration import SystemConf
@@ -82,8 +83,30 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
    def privmsg(self, user, channel, msg):
       if msg == SystemConf.config.get('irc','infocmd'):
          log.msg('Recieved !infocmd from %s in %s' % (user, channel))
-         self.msg(channel, 'Live channel topic updates: https://twitter.com/%s <3' % (str(TwitAPI.get_screen_name())))
+         self.msg(channel, 'Follow me on twitter for up-to-the-second stream notifications and events at https://twitter.com/%s <3' % (str(TwitAPI.get_screen_name())))
+         return
+      if msg[0:9].lower() == '!readthis':
+         words = msg.split()
+         if len(words) > 1:
+            self.msg(channel, words[1] + ': Please read the channel rules: http://dopelives.com/newfriend.html')
+         else:
+            self.msg(channel, 'Please read the channel rules: http://dopelives.com/newfriend.html')
+         return
+      if msg.lower() == '!next':
+         log.msg('Recieved !roulette from %s in %s' % (user, channel))
+         # if some times has elapsed since last roll...
+         if time() - self.tout > 2700:
+            log.msg('The timeout has expired! tout = ' + str(self.tout))
+            self.msg(channel, self.makeRoulette())
+            # update the last time
+            self.tout = time()
       return
+
+   def makeRoulette(self):
+      s = ['arch', 'Dopefish__lives', 'Fgw_wolf' , 'GreenMiscreant', 'LewishM', 'Ramstrong', 'Hitman_Spike', 'I-H', 'Lunki', 'Qeird', 'Qipz', 'Ratix', 'Ska', 'Yadde', 'weevil']
+      m = ['Lets all kindly ask %s to stream!', 'How about we tell %s just how much we like their streams?', "I think ... %s should stream!", 'It\'s been a while since %s last streamed.', 'The magic conch shell has spoken! %s shall stream!', '%s!', 'I just asked Larry and he said that %s should stream!', 'If only %s would stream some videogames on the internet...', 'Maybe if we wish really hard %s will stream!', 'Lets all clap our hands together and cheer \"Lets go %s!\"', '%s?', '%s.', 'I have fond memories of %s streams.', 'I\'m holding an entire family of snails hostage till %s streams!', 'The world will end in 24 hours if %s doesn\'t stream!', 'Maybe if someone sold their soul to Satan, %s would stream some games?', 'You have been greeted by the spirit of streams! Glorious livelive will be bestowed upon you only if you post \"I love %s streams!\" right now!', 'Lets all get comfy and wait for %s to stream. I bet he\'s setting up right as I type!', 'Lets all ask %s who should stream!', 'I gazed into the abyss and %s gazed back.' , 'The Pope has ordained that %s stream a holy game on this blessed day!', 'How about ... %s? :3c', 'I hacked into the streamer channel and it looks like %s is getting ready to stream!', 'What if %s streamed some videogames?', 'Maybe if %s is around, he could stream?', 'It\'s [Current Year]! %s should be streaming!', 'Don\'t let your %s streams be dreams.', 'Believe in yourself and maybe one day %s will stream!', 'Lets e-bully %s till he streams for us!', 'Yo %s, where the videogames at?', 'Lets all focus our positive energy towards %s.', 'I hear that %s knows who will be streaming next.', 'Everyone stare at %s till he streams!', '%s. Streams. Yes.']
+      random.seed(time())
+      return random.choice(m) % random.choice(s)
       
    # Ignore the topic messages generated upon joining channels then
    # pass every topic after that to the twitter helper.
