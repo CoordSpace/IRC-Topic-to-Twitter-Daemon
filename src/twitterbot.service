@@ -3,7 +3,7 @@ Description=Simple Twitter Bot
 
 [Service]
 Type=forking
-ExecStart=/path/to/src/startbot.sh
+ExecStart=/opt/irc-topic-to-twitter-daemon/starbot.sh
 Restart=on-abort
 
 [Install]

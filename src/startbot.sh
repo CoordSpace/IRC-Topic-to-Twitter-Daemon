@@ -1,2 +1,2 @@
 #! /bin/sh
-python2.7 /path/to/src/main.py /path/to/src/topic2twitter.conf &
+python2.7 /opt/irc-topic-to-twitter-daemon/src/main.py /opt/irc-topic-to-twitter-daemon/src/topic2twitter.conf &
