@@ -29,7 +29,7 @@ from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.protocols.policies import TimeoutMixin
 from twisted.internet import reactor
 from twisted.python import log
-from time import gmtime, strftime, sleep
+from time import gmtime, strftime, sleep, time
 import random
 # app specific packages
 from twitterhelper import TwitAPI
@@ -38,19 +38,38 @@ from infoextraction import ExtractInfo
 
 # Bot logic definition class. Only covers action callbacks.
 class TopicBot(irc.IRCClient, TimeoutMixin):
+
    
+   def loop_names():
+      names = ['arch', 'Dopefish', 'Fgw_wolf', 'Greene', 'Hitman_Spike', 'I-H', 'Lunki', 'Meryl', 'Q', 'Qipz', 'Ramstrong', 'Ratix', 'S', 'Ska', 'weevil', 'slate', 'sauze', 'TwitterBot', 'nogaems']
+      i = 0
+      while True:
+          # every time we finish listing all the names, reshuffle
+          if i % len(names) == 0:
+              random.shuffle(names)
+          yield names[i % len(names)]
+          i += 1
+
+
+   # streamer name generator
+   name = loop_names()
+
+
    def connectionMade(self):
       irc.IRCClient.connectionMade(self)
       self.setTimeout(600)
       log.msg("[connected!]")
+
    
    def connectionLost(self, reason):
       log.msg("Disconnected! " + reason.getErrorMessage())
       irc.IRCClient.connectionLost(self, reason)
+
       
    def timeoutConnection(self):
         self.transport.abortConnection()
         irc.IRCClient.connectionLost(self, '[Restarting connection..]')
+
       
    # callbacks for events #
    
@@ -58,6 +77,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
         self.resetTimeout()
         # pass on date to the normal event callbacks
         irc.IRCClient.dataReceived(self, data)
+
       
    def signedOn(self):
       log.msg('Signed on to server.')
@@ -67,9 +87,11 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
       log.msg('Authing with Q')
       self.msg('Q@CServe.quakenet.org', 'AUTH TwitterBot CcA3NGSxDT')
       self.mode(self.nickname, True, 'x')
+
       
    def joined(self, channel):
       log.msg('Joined ' + channel)
+
 
    def modeChanged(self, user, channel, set, modes, args):
       log.msg("Mode changed - " + modes)	
@@ -93,21 +115,24 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             self.msg(channel, 'Please read the channel rules: http://dopelives.com/newfriend.html')
          return
       if msg.lower() == '!next':
-         log.msg('Recieved !roulette from %s in %s' % (user, channel))
+         log.msg('Recieved !next from %s in %s' % (user, channel))
          # if some times has elapsed since last roll...
-         if time() - self.tout > 2700:
+         if time() - self.tout > 3600:
             log.msg('The timeout has expired! tout = ' + str(self.tout))
             self.msg(channel, self.makeRoulette())
             # update the last time
             self.tout = time()
+      if msg.lower() == '!quotes':
+            self.msg(channel, 'Shit people say in >this chat - https://twitter.com/Dopefish_Quotes')
       return
 
+
    def makeRoulette(self):
-      s = ['arch', 'Dopefish__lives', 'Fgw_wolf' , 'GreenMiscreant', 'LewishM', 'Ramstrong', 'Hitman_Spike', 'I-H', 'Lunki', 'Qeird', 'Qipz', 'Ratix', 'Ska', 'Yadde', 'weevil']
-      m = ['Lets all kindly ask %s to stream!', 'How about we tell %s just how much we like their streams?', "I think ... %s should stream!", 'It\'s been a while since %s last streamed.', 'The magic conch shell has spoken! %s shall stream!', '%s!', 'I just asked Larry and he said that %s should stream!', 'If only %s would stream some videogames on the internet...', 'Maybe if we wish really hard %s will stream!', 'Lets all clap our hands together and cheer \"Lets go %s!\"', '%s?', '%s.', 'I have fond memories of %s streams.', 'I\'m holding an entire family of snails hostage till %s streams!', 'The world will end in 24 hours if %s doesn\'t stream!', 'Maybe if someone sold their soul to Satan, %s would stream some games?', 'You have been greeted by the spirit of streams! Glorious livelive will be bestowed upon you only if you post \"I love %s streams!\" right now!', 'Lets all get comfy and wait for %s to stream. I bet he\'s setting up right as I type!', 'Lets all ask %s who should stream!', 'I gazed into the abyss and %s gazed back.' , 'The Pope has ordained that %s stream a holy game on this blessed day!', 'How about ... %s? :3c', 'I hacked into the streamer channel and it looks like %s is getting ready to stream!', 'What if %s streamed some videogames?', 'Maybe if %s is around, he could stream?', 'It\'s [Current Year]! %s should be streaming!', 'Don\'t let your %s streams be dreams.', 'Believe in yourself and maybe one day %s will stream!', 'Lets e-bully %s till he streams for us!', 'Yo %s, where the videogames at?', 'Lets all focus our positive energy towards %s.', 'I hear that %s knows who will be streaming next.', 'Everyone stare at %s till he streams!', '%s. Streams. Yes.']
-      random.seed(time())
-      return random.choice(m) % random.choice(s)
-      
+      m = ['Lets all kindly ask %s to stream!', "I think ... %s should stream!", 'It\'s been a while since %s last streamed.', '%s!', 'I just asked Larry and he said that %s should stream!', 'If only %s would stream some videogames on the internet...', 'Maybe if we focus really hard %s will stream!', '%s?', '%s.', 'I have fond memories of %s streams.', 'I\'m holding an entire family of snails hostage till %s streams!', 'Lets all get comfy and wait for %s to stream.','I bet %s is setting up to stream as I type!', 'Lets all ask %s who should stream!', 'How about ... %s? :3c', 'I hacked into the streamer channel and it looks like %s is getting ready to stream!', 'What if %s streamed some videogames?', 'Maybe if %s is around, he could stream?', 'Don\'t let your %s streams be dreams.', 'Believe in yourself and maybe one day %s will stream!', 'Yo %s, where the videogames at?', 'Lets all focus our positive energy towards %s.', 'I hear that %s knows who will be streaming next.', 'Everyone stare at %s till he streams!', '%s. Streams. Yes!']
+      random.seed()
+      return random.choice(m) % next(self.name)
+
+
    # Ignore the topic messages generated upon joining channels then
    # pass every topic after that to the twitter helper.
    def topicUpdated(self, user, channel, newTopic):
@@ -163,6 +188,8 @@ class BotFactory(ReconnectingClientFactory):
       p.realname = self.realname
       p.password = self.password
       p.processor = ExtractInfo()
+      # !next cooldown timer val
+      p.tout = 0
       return p
       
    def clientConnectionLost(self, connector, reason):
