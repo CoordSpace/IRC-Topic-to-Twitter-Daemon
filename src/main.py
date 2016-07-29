@@ -27,6 +27,7 @@
 from twisted.python import log
 import sys
 from os.path import dirname, join, abspath
+import codecs
 # app specific packages
 from twitterhelper import TwitAPI
 from bot import BotFactory
@@ -47,12 +48,11 @@ def main():
 
     c.get_config(confname)
 
-    # print config.get('debug','loggingfile')
     logfilepath = join(
         dirname(
             abspath(__file__)), c.get(
             'debug', 'loggingfile'))
-    log.startLogging(open(logfilepath, "a"))
+    log.startLogging(codecs.open(logfilepath, "a", 'utf-8'))
 
     # create twitter API connection
     TwitAPI.init_twitter(c.get('twitter', 'consumer_key'),
