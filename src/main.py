@@ -3,7 +3,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2014 Chris Earley <cw.earley@gmail.com>
+# Copyright (c) 2014 Chris Earley <chris@coord.space>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,44 +33,48 @@ from bot import BotFactory
 from twisted.internet import reactor
 from configuration import SystemConf as c
 
-def main():
-   
-   # for those cases where the user supplies more than just the 
-   # conf location  or none at all
-   numargs = len(sys.argv[1:])
-   
-   if numargs < 2:
-      confname = "topic2twitter.conf"
-   else:
-      confname = sys.argv[1]
-         
-   c.get_config(confname)
-   
-   # print config.get('debug','loggingfile')
-   logfilepath = join(dirname(abspath(__file__)),c.get('debug','loggingfile'))
-   log.startLogging(open(logfilepath, "a"))
 
-   # create twitter API connection
-   TwitAPI.init_twitter(c.get('twitter','consumer_key'),
-                 c.get('twitter','consumer_secret'),
-                 c.get('twitter','access_token_key'),
-                 c.get('twitter','access_token_secret'))
-   
-   # create factory protocol and application
-   f = BotFactory(c.get('irc','nickname'),
-                  c.get('irc','realname'),
-                  c.get('irc','username'),
-                  c.get('irc','password'),
-                  c.get('irc','channels').split(' '))
-   
-   # connect factory to this host and port
-   reactor.connectTCP(c.get('irc','serverURL'), 
-                  c.getint('irc','port'), f)
-   
-   # start the bot
-   reactor.run()
-   
-   return 0
+def main():
+
+    # for those cases where the user supplies more than just the
+    # conf location  or none at all
+    numargs = len(sys.argv[1:])
+
+    if numargs < 2:
+        confname = "topic2twitter.conf"
+    else:
+        confname = sys.argv[1]
+
+    c.get_config(confname)
+
+    # print config.get('debug','loggingfile')
+    logfilepath = join(
+        dirname(
+            abspath(__file__)), c.get(
+            'debug', 'loggingfile'))
+    log.startLogging(open(logfilepath, "a"))
+
+    # create twitter API connection
+    TwitAPI.init_twitter(c.get('twitter', 'consumer_key'),
+                         c.get('twitter', 'consumer_secret'),
+                         c.get('twitter', 'access_token_key'),
+                         c.get('twitter', 'access_token_secret'))
+
+    # create factory protocol and application
+    f = BotFactory(c.get('irc', 'nickname'),
+                   c.get('irc', 'realname'),
+                   c.get('irc', 'username'),
+                   c.get('irc', 'password'),
+                   c.get('irc', 'channels').split(' '))
+
+    # connect factory to this host and port
+    reactor.connectTCP(c.get('irc', 'serverURL'),
+                       c.getint('irc', 'port'), f)
+
+    # start the bot
+    reactor.run()
+
+    return 0
 
 if __name__ == '__main__':
-   main()
+    main()
