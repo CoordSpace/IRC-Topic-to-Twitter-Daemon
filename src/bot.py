@@ -31,74 +31,75 @@ from twisted.internet import reactor
 from twisted.python import log
 from time import gmtime, strftime, sleep, time
 import random
-import unicode
 # app specific packages
 from twitterhelper import TwitAPI
 from configuration import SystemConf
 from infoextraction import ExtractInfo
 
 
+def greek_string(s):
+    '''
+        Replaces the first standard vowel in a string with an accented
+        unicode vowel. Useful to prevent annoying pings on IRC.
+    '''
+    log.msg("Greeking string: " + s)
+    before = u'aeiouyAEIOUY'
+    after = u'àèìòùÿÄÉÍÒÙÝ'
+    # our dict of normal to greeked vowels
+    trans = {i: j for i, j in zip(before, after)}
+    # convert name to unicode
+    s = unicode(s)
+
+    for i, c in enumerate(s):
+        if c in before:
+            # rebuild the string with our new greeked vowel
+            # taking the place of the first vowel found
+            greeked = s[:i] + trans[c] + s[i + 1:]
+            log.msg("Greeked: " + greeked)
+            return greeked
+    log.msg("No greeking needed!")
+    # return the string untouched if there's nothing to change
+    return s
+
+
+def loop_names():
+    names = [
+        'arch',
+        'Booom3',
+        'Dopefish_lives',
+        'Fgw_wolf',
+        'FlippinKamikaze',
+        'Fateweaver',
+        'GreenMiscreant',
+        'Hitman_Spike',
+        'I-H',
+        'Lunki',
+        'Meryl',
+        'Nooya',
+        'Qipz',
+        'Ramstrong',
+        'Ratix',
+        'Rumia',
+        'Ska',
+        'weevil',
+        'Yadde',
+        'Po_',
+        'Sauze']
+    i = 0
+    while True:
+        # every time we finish listing all the names, reshuffle
+        if i % len(names) == 0:
+            random.shuffle(names)
+        # grab our name
+        name = names[i % len(names)]
+        # greek it so we don't get banned
+        greeked = greek_string(name)
+        yield greeked
+        i += 1
+
+
 # Bot logic definition class. Only covers action callbacks.
 class TopicBot(irc.IRCClient, TimeoutMixin):
-
-    def greek_string(s):
-        '''
-            Replaces the first standard vowel in a string with an accented
-            unicode vowel. Useful to prevent annoying pings on IRC.
-        '''
-        log.msg("Greeking string: " + s)
-        before = u'aeiouyAEIOUY'
-        after = u'àèìòùÿÄÉÍÒÙÝ'
-        # our dict of normal to greeked vowels
-        trans = {i: j for i, j in zip(before, after)}
-        # convert name to unicode
-        s = unicode(s)
-
-        for i, c in enumerate(s):
-            if c in before:
-                # rebuild the string with our new greeked vowel
-                # taking the place of the first vowel found
-                greeked = s[:i] + trans[c] + s[i + 1:]
-                log.msg("Greeked: " + greeked)
-                return greeked
-        log.msg("No greeking needed!")
-        # return the string untouched if there's nothing to change
-        return s
-
-    def loop_names():
-        names = [
-            'arch',
-            'Booom3',
-            'Dopefish_lives',
-            'Fgw_wolf',
-            'FlippinKamikaze',
-            'Fateweaver',
-            'GreenMiscreant',
-            'Hitman_Spike',
-            'I-H',
-            'Lunki',
-            'Meryl',
-            'Nooya',
-            'Qipz',
-            'Ramstrong',
-            'Ratix',
-            'Rumia',
-            'Ska',
-            'weevil',
-            'Yadde',
-            'Po_',
-            'Sauze']
-        i = 0
-        while True:
-            # every time we finish listing all the names, reshuffle
-            if i % len(names) == 0:
-                random.shuffle(names)
-            # grab our name
-            name = names[i % len(names)]
-            # greek it so we don't get banned
-            greeked = greek_string(name)
-            yield greeked
-            i += 1
 
     # streamer name generator
     name = loop_names()
@@ -169,7 +170,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             # if some times has elapsed since last roll...
             if time() - self.tout > 1800:
                 log.msg('The timeout has expired! tout = ' + str(self.tout))
-                self.msg(channel, self.makeRoulette())
+                self.msg(channel, self.makeRoulette().encode('utf-8'))
                 # update the last time
                 self.tout = time()
         if msg.lower() == '!quotes':
@@ -211,8 +212,9 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             'There\'s no such thing as too much %s livelive!',
             'The world would be a better place if only %s would stream.',
             'I\'ll give 20 dopecoins to %s if they stream.',
-            'Let\'s mix it up. How about if %s streams a movie instead?']
-        random.seed()
+            'Let\'s mix it up. How about if %s streams a movie instead?',
+            '!p1ayed %s',
+            '%s streams are so comfy, I could go for one right now!']
         message = random.choice(m) % next(self.name)
         log.msg("Roulette message: " + message)
         return message
