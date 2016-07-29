@@ -46,7 +46,8 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             Replaces the first standard vowel in a string with an accented
             unicode vowel. Useful to prevent annoying pings on IRC.
         '''
-        before = 'aeiouyAEIOUY'
+        log.msg("Greeking string: " + s)
+        before = u'aeiouyAEIOUY'
         after = u'àèìòùÿÄÉÍÒÙÝ'
         # our dict of normal to greeked vowels
         trans = {i: j for i, j in zip(before, after)}
@@ -57,7 +58,10 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             if c in before:
                 # rebuild the string with our new greeked vowel
                 # taking the place of the first vowel found
-                return s[:i] + trans[c] + s[i + 1:]
+                greeked = s[:i] + trans[c] + s[i + 1:]
+                log.msg("Greeked: " + greeked)
+                return greeked
+        log.msg("No greeking needed!")
         # return the string untouched if there's nothing to change
         return s
 
@@ -89,7 +93,11 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             # every time we finish listing all the names, reshuffle
             if i % len(names) == 0:
                 random.shuffle(names)
-            yield greek_string(names[i % len(names)])
+            # grab our name
+            name = names[i % len(names)]
+            # greek it so we don't get banned
+            greeked = greek_string(name)
+            yield greeked
             i += 1
 
     # streamer name generator
@@ -205,7 +213,9 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             'I\'ll give 20 dopecoins to %s if they stream.',
             'Let\'s mix it up. How about if %s streams a movie instead?']
         random.seed()
-        return random.choice(m) % next(self.name)
+        message = random.choice(m) % next(self.name)
+        log.msg("Roulette message: " + message)
+        return message
 
     # Ignore the topic messages generated upon joining channels then
     # pass every topic after that to the twitter helper.
