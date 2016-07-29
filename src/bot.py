@@ -42,7 +42,7 @@ def greek_string(s):
         Replaces the first standard vowel in a string with an accented
         unicode vowel. Useful to prevent annoying pings on IRC.
     '''
-    log.msg("Greeking string: " + s)
+    log.msg('Greeking string: ' + s)
     before = u'aeiouyAEIOUY'
     after = u'àèìòùÿÄÉÍÒÙÝ'
     # our dict of normal to greeked vowels
@@ -55,36 +55,36 @@ def greek_string(s):
             # rebuild the string with our new greeked vowel
             # taking the place of the first vowel found
             greeked = s[:i] + trans[c] + s[i + 1:]
-            log.msg("Greeked: " + greeked)
+            print('Greeked string: ' + greeked.encode('ascii', 'backslashreplace'))
             return greeked
-    log.msg("No greeking needed!")
+    log.msg('No greeking needed!')
     # return the string untouched if there's nothing to change
     return s
 
 
 def loop_names():
     names = [
-        'arch',
-        'Booom3',
-        'Dopefish_lives',
-        'Fgw_wolf',
-        'FlippinKamikaze',
-        'Fateweaver',
-        'GreenMiscreant',
-        'Hitman_Spike',
-        'I-H',
-        'Lunki',
-        'Meryl',
-        'Nooya',
-        'Qipz',
-        'Ramstrong',
-        'Ratix',
-        'Rumia',
-        'Ska',
-        'weevil',
-        'Yadde',
-        'Po_',
-        'Sauze']
+        u'arch',
+        u'Booom3',
+        u'Dopefish_lives',
+        u'Fgw_wolf',
+        u'FlippinKamikaze',
+        u'Fateweaver',
+        u'GreenMiscreant',
+        u'Hitman_Spike',
+        u'I-H',
+        u'Lunki',
+        u'Meryl',
+        u'Nooya',
+        u'Qipz',
+        u'Ramstrong',
+        u'Ratix',
+        u'Rumia',
+        u'Ska',
+        u'weevil',
+        u'Yadde',
+        u'Po_',
+        u'Sauze']
     i = 0
     while True:
         # every time we finish listing all the names, reshuffle
@@ -149,7 +149,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             log.msg('Recieved !infocmd from %s in %s' % (user, channel))
             self.msg(
                 channel,
-                'Follow me on twitter for up-to-the-second stream notifications and events at https://twitter.com/%s <3' %
+                'Want to know when streams are happening? Subscribe to https://twitter.com/%s for live updates!' %
                 (str(
                     TwitAPI.get_screen_name())))
             return
@@ -159,7 +159,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
                 self.msg(
                     channel,
                     words[1] +
-                    ': Please read the channel rules: http://dopelives.com/newfriend.html')
+                    ': Please read the channel rules - http://dopelives.com/newfriend.html')
             else:
                 self.msg(
                     channel,
@@ -216,7 +216,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             '!p1ayed %s',
             '%s streams are so comfy, I could go for one right now!']
         message = random.choice(m) % next(self.name)
-        log.msg("Roulette message: " + message)
+        log.msg(u"Roulette message: " + message.encode('ascii', 'backslashreplace'))
         return message
 
     # Ignore the topic messages generated upon joining channels then
@@ -226,7 +226,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             self.numjointopics += 1
             return
 
-        log.msg("Raw Topic: " + newTopic)
+        log.msg(u"Raw Topic: " + newTopic)
 
         # generate the formatted message
         newTopic = self.processor.generateMessage(newTopic)

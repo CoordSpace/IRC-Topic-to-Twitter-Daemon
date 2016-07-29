@@ -84,4 +84,4 @@ class TwitAPI:
     # User object and return the string.
     @classmethod
     def get_screen_name(cls):
-        return cls.user.GetScreenName()
+        return cls.user.screen_name
