@@ -3,7 +3,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2014 Chris Earley <cw.earley@gmail.com>
+# Copyright (c) 2014 Chris Earley <chris@coord.space>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,43 +28,46 @@ from configuration import SystemConf
 
 
 def main():
-   
-   config, description = SystemConf.build_config()
 
-   print ('This wizard will walk you through generating a topic2twitter configuration file.\nJust enter the desired option value when prompted.')
-   
-   for section in config.sections():
-      # https://wiki.python.org/moin/IfStatementWithValue#Accepted_Solution
-      section_description = description[section] if section in description else None
-      # since descriptions may not exist for all config sections, check.
-      if section_description != None:
-         print (section_description)
-      for option in config.options(section):
-         
-         option_description = description[option] if option in description else ''
-         
-         default = config.get(section, option)
-            
-         value = raw_input('{0} - {1}(default: {2}): '.format(option, option_description, default))
-         # only change the value if the user supplies something new
-         # otherwise you'll overwrite any defaults
-         if value != '':
-            config.set(section, option, str(value))
-               
-   print('Config Settings - The last step.')
-         
-   confname = raw_input('Config file name (default: topic2twitter.conf): ')
-   
-   if confname == '':
-      confname = 'topic2twitter.conf'
-      
-   # Writing our configuration file to 'example.cfg'
-   with open(confname, 'wb') as configfile:
-      config.write(configfile)
-      
-   print ('Done!\nNow launch the daemon with (####################)')
-   
-   return 0
+    config, description = SystemConf.build_config()
+
+    print ('This wizard will walk you through generating a topic2twitter configuration file.\nJust enter the desired option value when prompted.')
+
+    for section in config.sections():
+        # https://wiki.python.org/moin/IfStatementWithValue#Accepted_Solution
+        section_description = description[
+            section] if section in description else None
+        # since descriptions may not exist for all config sections, check.
+        if section_description is not None:
+            print (section_description)
+        for option in config.options(section):
+
+            option_description = description[
+                option] if option in description else ''
+
+            default = config.get(section, option)
+
+            value = raw_input(
+                '{0} - {1}(default: {2}): '.format(option, option_description, default))
+            # only change the value if the user supplies something new
+            # otherwise you'll overwrite any defaults
+            if value != '':
+                config.set(section, option, str(value))
+
+    print('Config Settings - The last step.')
+
+    confname = raw_input('Config file name (default: topic2twitter.conf): ')
+
+    if confname == '':
+        confname = 'topic2twitter.conf'
+
+    # Writing our configuration file to 'example.cfg'
+    with open(confname, 'wb') as configfile:
+        config.write(configfile)
+
+    print ('Done!\nNow launch the daemon with: python2.7 main.py topic2twitter.conf')
+
+    return 0
 
 if __name__ == '__main__':
-	main()
+    main()

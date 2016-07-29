@@ -3,7 +3,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2014 Chris Earley <cw.earley@gmail.com>
+# Copyright (c) 2014 Chris Earley <chris@coord.space>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,51 +26,62 @@
 import twitter
 from twisted.python import log
 
+
 class TwitAPI:
-   
-   # The twitter lib object containing information regarding the 
-   # current twitter user
-   user = None
-   # The twitter lib object containing the current session data
-   # needed to make REST API calls to the twitter service
-   api = None
-   @classmethod
-   def init_twitter(cls, consumer_key, consumer_secret, access_token_key, access_token_secret):
-      
-      # create the API object using the supplied credentials
-      cls.api = twitter.Api(consumer_key, consumer_secret, access_token_key, access_token_secret)
-      
-      # Verify that we have access to the account, 
-      # throw error if invalid credentials are given.
-      # also use this time-heavy API call to nab the user obj for later use.
-      try:
-         cls.user = cls.api.VerifyCredentials()
-      except twitter.TwitterError, e:
-         print "ERROR: Please verify OAuth info and specify in the format shown - consumer_key:consumer_secret:access_token_key:access_token_secret"
-         log.err(e)
-         raise SystemExit(1)
-      
-   # Post 140 characters of the given text to twitter. 
-   @classmethod
-   def makepost (cls, msg):
-      # truncate message to 130 characters. 
-      # This limit is a quick fix until I can make a workaround 
-      # for twitter-text nonsense.
-      msg = msg[:130]
-      
-      #push the message to twitter, checking for any errors from the service
-      try:
-         cls.api.PostUpdate(msg)
-      except twitter.TwitterError, e:
-      # Just swallow the exception and move on
-      # otherwise twitter's strict spam/duplicate restrictions 
-      # will constantly crash the daemon.
-      # There's nothing serious that can happen other than a lost post. 
-         log.err(e)
-         pass
-         
-   # Get the screen name of the auth'ed twitter account from the 
-   # User object and return the string.
-   @classmethod
-   def get_screen_name(cls):
-      return cls.user.GetScreenName()
+
+    # The twitter lib object containing information regarding the
+    # current twitter user
+    user = None
+    # The twitter lib object containing the current session data
+    # needed to make REST API calls to the twitter service
+    api = None
+
+    @classmethod
+    def init_twitter(
+            cls,
+            consumer_key,
+            consumer_secret,
+            access_token_key,
+            access_token_secret):
+
+        # create the API object using the supplied credentials
+        cls.api = twitter.Api(
+            consumer_key,
+            consumer_secret,
+            access_token_key,
+            access_token_secret)
+
+        # Verify that we have access to the account,
+        # throw error if invalid credentials are given.
+        # also use this time-heavy API call to nab the user obj for later use.
+        try:
+            cls.user = cls.api.VerifyCredentials()
+        except twitter.TwitterError as e:
+            print "ERROR: Please verify OAuth info and specify in the format shown - consumer_key:consumer_secret:access_token_key:access_token_secret"
+            log.err(e)
+            raise SystemExit(1)
+
+    # Post 140 characters of the given text to twitter.
+    @classmethod
+    def makepost(cls, msg):
+        # truncate message to 130 characters.
+        # This limit is a quick fix until I can make a workaround
+        # for twitter-text nonsense.
+        msg = msg[:130]
+
+        # push the message to twitter, checking for any errors from the service
+        try:
+            cls.api.PostUpdate(msg)
+        except twitter.TwitterError as e:
+            # Just swallow the exception and move on
+            # otherwise twitter's strict spam/duplicate restrictions
+            # will constantly crash the daemon.
+            # There's nothing serious that can happen other than a lost post.
+            log.err(e)
+            pass
+
+    # Get the screen name of the auth'ed twitter account from the
+    # User object and return the string.
+    @classmethod
+    def get_screen_name(cls):
+        return cls.user.GetScreenName()
