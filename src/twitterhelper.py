@@ -64,21 +64,20 @@ class TwitAPI:
     # Post 140 characters of the given text to twitter.
     @classmethod
     def makepost(cls, msg):
-        # truncate message to 130 characters.
-        # This limit is a quick fix until I can make a workaround
-        # for twitter-text nonsense.
-        msg = msg[:130]
 
-        # push the message to twitter, checking for any errors from the service
-        try:
-            cls.api.PostUpdate(msg)
-        except twitter.TwitterError as e:
-            # Just swallow the exception and move on
-            # otherwise twitter's strict spam/duplicate restrictions
-            # will constantly crash the daemon.
-            # There's nothing serious that can happen other than a lost post.
-            log.err(e)
-            pass
+        for tweet in tweets:
+            # push the message to twitter, checking for any errors from the service
+            # now we don't have to worry about length as postupdates will
+            # magically split the message into multiple tweets for us
+            try:
+                cls.api.PostUpdates(tweet)
+            except twitter.TwitterError as e:
+                # Just swallow the exception and move on
+                # otherwise twitter's strict spam/duplicate restrictions
+                # will constantly crash the daemon.
+                # There's nothing serious that can happen other than a lost post.
+                log.err(e)
+                pass
 
     # Get the screen name of the auth'ed twitter account from the
     # User object and return the string.
