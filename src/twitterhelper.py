@@ -68,7 +68,7 @@ class TwitAPI:
         # now we don't have to worry about length as postupdates will
         # magically split the message into multiple tweets for us
         try:
-            cls.api.PostUpdates(tweet)
+            cls.api.PostUpdates(tweet, continuation=u"\u2026")
         except twitter.TwitterError as e:
             # Just swallow the exception and move on
             # otherwise twitter's strict spam/duplicate restrictions
