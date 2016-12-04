@@ -226,7 +226,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             self.numjointopics += 1
             return
 
-        log.msg(u"Raw Topic: " + newTopic)
+        # log.msg(u"Raw Topic: " + newTopic)
 
         # generate the formatted message
         newTopic = self.processor.generateMessage(newTopic)

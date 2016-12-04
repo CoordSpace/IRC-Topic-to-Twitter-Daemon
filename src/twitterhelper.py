@@ -64,11 +64,12 @@ class TwitAPI:
     # Post 140 characters of the given text to twitter.
     @classmethod
     def makepost(cls, msg):
+        msg = msg[:130]
         # push the message to twitter, checking for any errors from the service
         # now we don't have to worry about length as postupdates will
         # magically split the message into multiple tweets for us
         try:
-            cls.api.PostUpdates(tweet, continuation=u"\u2026")
+            cls.api.PostUpdates(msg, continuation=u"\u2026")
         except twitter.TwitterError as e:
             # Just swallow the exception and move on
             # otherwise twitter's strict spam/duplicate restrictions
