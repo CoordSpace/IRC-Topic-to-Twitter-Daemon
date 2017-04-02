@@ -65,7 +65,6 @@ def greek_string(s):
 def loop_names():
     names = [
         u'arch',
-        u'Booom3',
         u'Dopefish_lives',
         u'Fgw_wolf',
         u'FlippinKamikaze',
@@ -83,8 +82,7 @@ def loop_names():
         u'Ska',
         u'weevil',
         u'Yadde',
-        u'Po_',
-        u'Sauze']
+        u'Po_']
     i = 0
     while True:
         # every time we finish listing all the names, reshuffle
@@ -153,6 +151,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
                 (str(
                     TwitAPI.get_screen_name())))
             return
+
         if msg[0:9].lower() == '!readthis':
             words = msg.split()
             if len(words) > 1:
@@ -165,6 +164,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
                     channel,
                     'Please read the channel rules: http://dopelives.com/newfriend.html')
             return
+
         if msg.lower() == '!next':
             log.msg('Recieved !next from %s in %s' % (user, channel))
             # if some times has elapsed since last roll...
@@ -173,10 +173,18 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
                 self.msg(channel, self.makeRoulette().encode('utf-8'))
                 # update the last time
                 self.tout = time()
+            return
+
         if msg.lower() == '!quotes':
             self.msg(
                 channel,
                 'Shit people say in >this chat - https://twitter.com/Dopefish_Quotes')
+            return
+
+        if msg.lower() == '!bingo':
+            self.msg(
+                channel,
+                'https://skabingo.neocities.org')
         return
 
     def makeRoulette(self):
@@ -191,10 +199,8 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             '%s?',
             '%s.',
             'I have fond memories of %s streams.',
-            'I\'m holding an entire family of snails hostage till %s streams!',
             'Lets all get comfy and wait for %s to stream.',
             'I bet %s is setting up to stream as I type!',
-            'Lets all ask %s who should stream!',
             'How about ... %s? :3c',
             'I hacked into the streamer channel and it looks like %s is getting ready to stream!',
             'What if %s streamed some videogames?',
@@ -204,11 +210,9 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             'Yo %s, where the vidja at?',
             'Lets all focus our positive energy towards %s.',
             'I hear that %s knows who will be streaming next.',
-            'Everyone stare at %s till they stream!',
             '%s. Streams. Yes!',
             '%s should stream!',
             'I can never get enough of %s streams!',
-            '!nextplayed whatever %s wants to stream!',
             'There\'s no such thing as too much %s livelive!',
             'The world would be a better place if only %s would stream.',
             'I\'ll give 20 dopecoins to %s if they stream.',
