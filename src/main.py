@@ -41,7 +41,9 @@ def main():
     # conf location  or none at all
     numargs = len(sys.argv[1:])
 
-    if numargs < 2:
+    print(sys.argv)
+
+    if numargs < 1:
         confname = "topic2twitter.conf"
     else:
         confname = sys.argv[1]
