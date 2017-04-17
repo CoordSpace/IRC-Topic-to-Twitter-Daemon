@@ -2,9 +2,10 @@
 Description=Simple Twitter Bot
 
 [Service]
-Type=forking
-ExecStart=/opt/irc-topic-to-twitter-daemon/starbot.sh
-Restart=on-abort
+Type=simple
+WorkingDirectory=/opt/irc-topic-to-twitter-daemon/src
+ExecStart=/opt/irc-topic-to-twitter-daemon/virtualenv/bin/python main.py bot.conf
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
