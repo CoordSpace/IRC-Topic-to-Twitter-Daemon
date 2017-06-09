@@ -42,6 +42,7 @@
 
 import time
 from twisted.python import log
+from random import choice
 
 
 class ExtractInfo():
@@ -131,6 +132,20 @@ class ExtractInfo():
     #  - None (in the case of a duplicate message)
     def generateMessage(self, topic):
 
+        verb = ["playing", "failing at", "crushing", "messing about in",
+                "goofing about in", "streaming", "liveblogging", "breaking",
+                "speedrunning", "cheating in", "winning", "beating", "1CCing",
+                "hacking", 'lets playing', 'trying to', 'sucking at',
+                'learning']
+
+        outro = ["What a stream! Be sure to check out the VOD on http://vacker.tv/ondemand",
+                 "Stream over! What a ride!", "And that's it for that stream, folks!",
+                 "Stream = ded. Just like chat.", "Stream over, now back to nostreams. :(",
+                 "You missed one hell of a stream! It might be on http://vacker.tv/ondemand already.",
+                 "Was that even legal? Oh well, thanks for watching the stream everyone!",
+                 "Stream over!", "That's it for that stream!", "Thanks for watching the stream!",
+                 "Okay, time for the next stream!"]
+
         # extract that informations!
         info = self.extract(topic)
         extracted = info[0]
@@ -147,7 +162,7 @@ class ExtractInfo():
                 # if the topic is entirely empty, print a message about it!
                 if extracted[0] == '':
                     log.msg("Empty topic string.")
-                    return "No community messages. If only there were streams..."
+                    return "The chat topic is empty! Someone messed up..."
 
                 # return the raw string
                 log.msg("Movie night topic.")
@@ -157,7 +172,7 @@ class ExtractInfo():
             if (extracted[0] == '') & (extracted[1] == ''):
                 log.msg("Empty topic. e.g. Streamer | Game |")
                 self.prevInfo = info
-                return "Stream over. Thanks for watching everyone!"
+                return choice(outro)
 
             # Fantastic! A real new stream!
             else:
@@ -167,7 +182,7 @@ class ExtractInfo():
                         extracted[i] = '???'
                 log.msg("New populated topic.")
                 self.prevInfo = info
-                return extracted[0] + ' is playing ' + \
+                return extracted[0] + ' is ' + choice(verb) + ' ' + \
                     extracted[1] + ' @ dopelives.com!'
 
         return None
