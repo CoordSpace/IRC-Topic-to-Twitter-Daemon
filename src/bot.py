@@ -64,25 +64,15 @@ def greek_string(s):
 
 def loop_names():
     names = [
-        u'arch',
         u'Dopefish_lives',
-        u'Fgw_wolf',
-        u'FlippinKamikaze',
-        u'Fateweaver',
         u'GreenMiscreant',
         u'Hitman_Spike',
         u'I-H',
-        u'Lunki',
         u'Meryl',
-        u'Nooya',
         u'Qipz',
         u'Ramstrong',
-        u'Ratix',
         u'Rumia',
-        u'Ska',
-        u'weevil',
-        u'Yadde',
-        u'Po_']
+        u'Ska']
     i = 0
     while True:
         # every time we finish listing all the names, reshuffle
@@ -168,7 +158,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
         if msg.lower() == '!next':
             log.msg('Recieved !next from %s in %s' % (user, channel))
             # if some times has elapsed since last roll...
-            if time() - self.tout > 1800:
+            if time() - self.tout > 18000:
                 log.msg('The timeout has expired! tout = ' + str(self.tout))
                 self.msg(channel, self.makeRoulette().encode('utf-8'))
                 # update the last time
@@ -185,6 +175,11 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             self.msg(
                 channel,
                 'https://skabingo.neocities.org')
+
+        if msg.lower() == '!schedule':
+            self.msg(
+                channel,
+                'https://summerstreams.neocities.org')
         return
 
     def makeRoulette(self):
