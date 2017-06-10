@@ -214,7 +214,7 @@ class TopicBot(irc.IRCClient, TimeoutMixin):
             'Let\'s mix it up. How about if %s streams a movie instead?',
             '!p1ayed %s',
             '%s streams are so comfy, I could go for one right now!']
-        message = random.choice(m) % next(self.name)
+        message = random.SystemRandom().choice(m) % next(self.name)
         log.msg(u"Roulette message: " + message.encode('ascii', 'backslashreplace'))
         return message
 

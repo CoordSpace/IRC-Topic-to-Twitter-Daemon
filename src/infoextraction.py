@@ -42,7 +42,7 @@
 
 import time
 from twisted.python import log
-from random import choice
+import random
 
 
 class ExtractInfo():
@@ -134,17 +134,16 @@ class ExtractInfo():
 
         verb = ["playing", "failing at", "crushing", "messing about in",
                 "goofing about in", "streaming", "liveblogging", "breaking",
-                "speedrunning", "cheating in", "winning", "beating", "1CCing",
-                "hacking", 'lets playing', 'trying to', 'sucking at',
-                'learning']
+                "speedrunning", "winning", "beating", "1CCing",
+                'lets playing', 'trying to', 'sucking at', 'learning']
 
         outro = ["What a stream! Be sure to check out the VOD on http://vacker.tv/ondemand",
                  "Stream over! What a ride!", "And that's it for that stream, folks!",
-                 "Stream = ded. Just like chat.", "Stream over, now back to nostreams. :(",
+                 "Stream over, now back to nostreams. :(",
                  "You missed one hell of a stream! It might be on http://vacker.tv/ondemand already.",
                  "Was that even legal? Oh well, thanks for watching the stream everyone!",
                  "Stream over!", "That's it for that stream!", "Thanks for watching the stream!",
-                 "Okay, time for the next stream!"]
+                 "Okay, stream over! Anyone want to go next?"]
 
         # extract that informations!
         info = self.extract(topic)
@@ -172,7 +171,7 @@ class ExtractInfo():
             if (extracted[0] == '') & (extracted[1] == ''):
                 log.msg("Empty topic. e.g. Streamer | Game |")
                 self.prevInfo = info
-                return choice(outro)
+                return random.SystemRandom().choice(outro)
 
             # Fantastic! A real new stream!
             else:
@@ -182,7 +181,7 @@ class ExtractInfo():
                         extracted[i] = '???'
                 log.msg("New populated topic.")
                 self.prevInfo = info
-                return extracted[0] + ' is ' + choice(verb) + ' ' + \
-                    extracted[1] + ' @ dopelives.com!'
+                return extracted[0] + ' is ' + random.SystemRandom().choice(verb) + ' ' + \
+                    extracted[1] + ' @ DopeLives.com!'
 
         return None
