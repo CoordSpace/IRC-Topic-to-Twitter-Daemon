@@ -1,57 +1,33 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-# This class is dedicated to the extraction of information from specially
-# formatted IRC topic strings and the creation of concise messages
-# It is inherently single use and relies on a specific set of unwritten
-# topic formatting standards that only exist on the #dopefish_lives IRC channel
-# Due to this inflexible nature, I do not recommend using this fork of the
-# twitter daemon unless you can adopt some conventions:
+"""
+    This class is dedicated to the extraction of information from specially
+    formatted IRC topic strings and the creation of concise messages
+    It is inherently single use and relies on a specific set of unwritten
+    topic formatting standards that only exist on the #dopefish_lives IRC channel
+    Due to this inflexible nature, I do not recommend using this fork of the
+    twitter daemon unless you can adopt some conventions:
 
-# In the original usage, this script extracts the first two elements from
-# a topic string formatted as shown:
-#     Streamer: <item one> | Game: <item 2> | Useless information that
-#     gets removed -> <item one> is playing <item two>! Come watch @ Dopelives.com
-#  or
-#     Movienight: Stream info here | Any | number | of | segments ->
-#     Movienight: Stream info here | Any | number | of | segments
-
-# If you stick to those conventions and change any specifics to the
-# Dopelives community, this fork will work out just fine for your uses. :)
-#
-# The MIT License (MIT)
-#
-# Copyright (c) 2014 Chris Earley <chris@coord.space>
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-
+    In the original usage, this script extracts the first two elements from
+    a topic string formatted as shown:
+        Streamer: <item one> | Game: <item 2> | Useless information that
+        gets removed -> <item one> is playing <item two>! Come watch @ Dopelives.com
+     or
+        Movienight: Stream info here | Any | number | of | segments ->
+        Movienight: Stream info here | Any | number | of | segments
+"""
 import time
-from twisted.python import log
-import random
+from random import choice
 
 
 class ExtractInfo():
 
-    def __init__(self):
+    def __init__(self, log):
         # The tuple containing a list of information Strings used to generate
         # twitter posts and seconds from the epoc upon creation
         self.prevInfo = ([], 0)
-        self.timeout = 20  # seconds before a topic change is considered unique
+        self.timeout = 10  # seconds before a topic change is considered unique
+        # python logger instance used by IRC3
+        self.log = log
 
     # Take a raw topic String and return a tuple with either:
     #  - A List of two Strings for the current streamer and game followed by a time() value
@@ -85,11 +61,11 @@ class ExtractInfo():
     #  - Occurring after a reasonable timeout (to prevent any double posting during cheeky mod humor)
     def uniqueTest(self, currentInfo):
 
-        log.msg("Time since last topic: " +
+        self.log.info("Time since last topic: " +
                 str(currentInfo[1] - self.prevInfo[1]) + " sec")
         # kick out topic changes that happen before the timeout period lapses
         if currentInfo[1] - self.prevInfo[1] < self.timeout:
-            log.msg("Topic change before timeout period.")
+            self.log.info("Topic change before timeout period.")
             return False
 
         currentItems, prevItems = currentInfo[0], self.prevInfo[0]
@@ -99,29 +75,29 @@ class ExtractInfo():
         if len(currentItems) != len(prevItems):
             # print ' LENGTHS - ' + str(len(currentItems)) + ', ' +
             # str(len(prevItems))
-            log.msg("New topic format.")
+            self.log.info("New topic format.")
             return True
 
         # if there are two Strings in the List, check for sameness on both
         if len(currentItems) == 2:
 
             if currentItems[1] != prevItems[1]:
-                log.msg("Updated game.")
+                self.log.info("Updated game.")
                 return True
 
             if currentItems[0] != prevItems[0]:
-                log.msg("Updated streamer.")
+                self.log.info("Updated streamer.")
                 return True
 
         # in the case of only one String (movie link)
         else:
             if currentItems[0] != prevItems[0]:
-                log.msg("Updated movie night topic.")
+                self.log.info("Updated movie night topic.")
                 return True
 
         # if all else fails, default to sameness. False negatives are preferred
         # in this situation.
-        log.msg("Topic information not unique.")
+        self.log.info("Topic information not unique.")
         return False
 
     # Take in the raw topic String and generate a corresponding String message to post on twitter
@@ -132,18 +108,23 @@ class ExtractInfo():
     #  - None (in the case of a duplicate message)
     def generateMessage(self, topic):
 
-        verb = ["playing", "failing at", "crushing", "messing about in",
-                "goofing about in", "streaming", "liveblogging", "breaking",
-                "speedrunning", "winning", "beating", "1CCing",
-                'lets playing', 'trying to', 'sucking at', 'learning']
+        verb = ["playing",
+                "streaming",
+                "#streaming"
+                'livestreaming',
+                "showing off"]
 
-        outro = ["What a stream! Be sure to check out the VOD on http://vacker.tv/ondemand",
-                 "Stream over! What a ride!", "And that's it for that stream, folks!",
-                 "Stream over, now back to nostreams. :(",
-                 "You missed one hell of a stream! It might be on http://vacker.tv/ondemand already.",
-                 "Was that even legal? Oh well, thanks for watching the stream everyone!",
-                 "Stream over!", "That's it for that stream!", "Thanks for watching the stream!",
-                 "Okay, stream over! Anyone want to go next?"]
+        outro = ["Be sure to check out the VOD of that stream on http://vacker.tv/ondemand",
+                 "And that's it for that stream, folks!",
+                 "Stream over. Now back to nostreams. :(",
+                 "Stream over!",
+                 "That's it for that stream!",
+                 "Time for nostreams. Check out our VODs for something to watch in the meantime: http://vacker.tv/ondemand",
+                 "Thanks for watching the stream!",
+                 "Thanks for watching everyone!",
+                 "Thanks for watching, now back to http://this.chat",
+                 "Okay, stream over! Anyone want to go next?",
+                 "Stream over! Be sure to follow and tweet at your favorite DopeLives streamers: https://twitter.com/DopeLivesDaemon/lists/dopelives-streamers"]
 
         # extract that informations!
         info = self.extract(topic)
@@ -160,18 +141,18 @@ class ExtractInfo():
 
                 # if the topic is entirely empty, print a message about it!
                 if extracted[0] == '':
-                    log.msg("Empty topic string.")
+                    self.log.info("Empty topic string.")
                     return "The chat topic is empty! Someone messed up..."
 
                 # return the raw string
-                log.msg("Movie night topic.")
+                self.log.info("Movie night topic.")
                 return extracted[0]
 
             # is it an empty topic?
             if (extracted[0] == '') & (extracted[1] == ''):
-                log.msg("Empty topic. e.g. Streamer | Game |")
+                self.log.info("Empty topic. e.g. Streamer | Game |")
                 self.prevInfo = info
-                return random.SystemRandom().choice(outro)
+                return choice(outro)
 
             # Fantastic! A real new stream!
             else:
@@ -179,9 +160,9 @@ class ExtractInfo():
                 for i in range(2):
                     if extracted[i] == '':
                         extracted[i] = '???'
-                log.msg("New populated topic.")
+                self.log.info("New populated topic.")
                 self.prevInfo = info
-                return extracted[0] + ' is ' + random.SystemRandom().choice(verb) + ' ' + \
+                return extracted[0] + ' is ' + choice(verb) + ' ' + \
                     extracted[1] + ' @ DopeLives.com!'
-
-        return None
+        else:
+            return None
