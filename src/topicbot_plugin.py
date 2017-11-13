@@ -59,7 +59,7 @@ def makeRoulette(nickname):
         '!p1ayed {0}',
         '{0} streams are so comfy, I could go for one right now!',
         'Maybe you should stream!',
-        'Lets put our heads to together and think of who should stream.',
+        'Lets put our heads together and think of who should stream.',
         'You know what, no. How about YOU say who will stream next!',
         '>implying someone will stream',
         '(Pssst, {0} will be streaming next)',
@@ -208,3 +208,4 @@ class Plugin:
             for name, status in self.bot.send_tweet(final_message):
                 self.bot.log.info('Tweet to {0}: status - {1}'.format(name, status))
             self.bot.log.info('Tweet sent!')
+

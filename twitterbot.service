@@ -1,0 +1,13 @@
+
+[Unit]
+Description=Simple Twitter Bot
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/irc-topic-to-twitter-daemon/src
+ExecStart=/opt/irc-topic-to-twitter-daemon/venv/bin/irc3 -r -v config.ini
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

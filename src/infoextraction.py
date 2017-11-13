@@ -109,22 +109,10 @@ class ExtractInfo():
     def generateMessage(self, topic):
 
         verb = ["playing",
-                "streaming",
-                "#streaming"
-                'livestreaming',
-                "showing off"]
+                "streaming"]
 
-        outro = ["Be sure to check out the VOD of that stream on http://vacker.tv/ondemand",
-                 "And that's it for that stream, folks!",
-                 "Stream over. Now back to nostreams. :(",
-                 "Stream over!",
-                 "That's it for that stream!",
-                 "Time for nostreams. Check out our VODs for something to watch in the meantime: http://vacker.tv/ondemand",
-                 "Thanks for watching the stream!",
-                 "Thanks for watching everyone!",
-                 "Thanks for watching, now back to http://this.chat",
-                 "Okay, stream over! Anyone want to go next?",
-                 "Stream over! Be sure to follow and tweet at your favorite DopeLives streamers: https://twitter.com/DopeLivesDaemon/lists/dopelives-streamers"]
+        outro = ["Thanks for watching!",
+                 "Stream over!"]
 
         # extract that informations!
         info = self.extract(topic)
@@ -166,3 +154,4 @@ class ExtractInfo():
                     extracted[1] + ' @ DopeLives.com!'
         else:
             return None
+
