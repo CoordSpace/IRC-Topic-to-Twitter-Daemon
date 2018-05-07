@@ -8,37 +8,32 @@ Used by IRC-based video gaming/hacking communities to alert their users of chatr
 Dependencies
 ====
 
- * Python 2.7
+ * Python 3.3+
 
- * [Twisted](twistedmatrix.com)
->$ pip install twisted
+ * [IRC3](https://pypi.python.org/pypi/irc3/)
 
- * [Python Twitter: A Python wrapper around the Twitter API](https://code.google.com/p/python-twitter/)
->$ pip install python-twitter
+ * [Twitter](https://pypi.python.org/pypi/twitter) with a [Twitter app](https://apps.twitter.com/) made on an account in your control.
+
 
 Usage
 ====
 
-First create the configuration file using the handy wizard:
-        
-`python2.7 src/makeconfig.py` - This will guide you through the whole process. Be sure to have your dev.twitter app info ready.
+Note: It's recommended to run the daemon from within a [virtual environment](https://docs.python.org/3/library/venv.html).
 
-Then launch the bot:
+First install all the requirements using:
 
-`python2.7 /path/to/main.py /path/to/topic2twitter.conf &`
+`pip install -r /path/to/requirements.txt`
 
-A sample systemd unit file and wrapper bash script are available in /src though you will need to change the ExecStart and bash paths to match your setup.
+Then copy the config.ini.sample to config.ini and edit it to your needs.
 
- 
-Notes
-====
+Make sure to input all the keys and access tokens supplied by twitter for your app so the bot can post to the service!
 
-Any long topic messages will be truncated to 125 characters before being sent to twitter. This may cause a loss of valuable information so format your topics accordingly. 
+Then launch the bot with helpful debug using:
 
-To Do
-====
+`irc3 -v -r config.ini`
 
- * Make the system aware of twitter's t.co 'URL lengthener' when formatting the message string. Sometimes short URLs in a topic can cause the message to become too large to post after twitter expands them into 20+ character t.co links. 
+
+A sample systemd unit file available in /src though you will need to change the ExecStart and WorkingDirectory paths to match your setup.
 
 License
 ====

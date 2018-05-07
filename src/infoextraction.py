@@ -110,7 +110,7 @@ class ExtractInfo():
 
         verb = ["playing",
                 "streaming",
-                "#streaming"
+                "#streaming",
                 'livestreaming',
                 "showing off"]
 
@@ -124,7 +124,7 @@ class ExtractInfo():
                  "Thanks for watching everyone!",
                  "Thanks for watching, now back to http://this.chat",
                  "Okay, stream over! Anyone want to go next?",
-                 "Stream over! Be sure to follow and tweet at your favorite DopeLives streamers: https://twitter.com/DopeLivesDaemon/lists/dopelives-streamers"]
+                 "Stream over! Be sure to follow your favorite DopeLives streamers: https://twitter.com/DopeLivesDaemon/lists/dopelives-streamers"]
 
         # extract that informations!
         info = self.extract(topic)
@@ -152,6 +152,8 @@ class ExtractInfo():
             if (extracted[0] == '') & (extracted[1] == ''):
                 self.log.info("Empty topic. e.g. Streamer | Game |")
                 self.prevInfo = info
+                # just ignore this state to prevent spamming twitter.
+                return None
                 return choice(outro)
 
             # Fantastic! A real new stream!

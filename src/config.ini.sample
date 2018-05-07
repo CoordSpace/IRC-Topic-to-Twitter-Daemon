@@ -21,7 +21,7 @@ includes =
     irc3.plugins.social
     irc3.plugins.log
     irc3.plugins.userlist
-    topicbot_plugin
+    topicbot
 
 # if ${hash}channel the bot will join #channel
 # ${hash} is replaced by the # char
