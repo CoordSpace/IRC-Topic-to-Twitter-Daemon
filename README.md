@@ -8,7 +8,7 @@ Used by IRC-based video gaming communities to alert their users of chatroom even
 In the current usage that was custom made for the Dopefish_lives community on Quakenet, this script extracts the first two elements from
 a topic string formatted as shown:
 
-    Streamer: <item one> | Game: <item 2> | Useless information
+    Streamer: <item one> | Game: <item two> | Useless information
 and tweets it out to the world in the following format:
 
     <item one> is playing <item two> @ Dopelives.com!
