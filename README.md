@@ -3,7 +3,15 @@ IRC Topic-to-Twitter Daemon
 
 A lightweight python daemon used push formatted IRC topic changes from 1+ channels to a central twitter account.
 
-Used by IRC-based video gaming/hacking communities to alert their users of chatroom events in real time without needing to continually lurk in the channel(s). Additionally, the twitter feed also functions as an independent log of past topics which can be used for a variety of historical contexts.
+Used by IRC-based video gaming communities to alert their users of chatroom events in real time without needing to continually lurk in the channel(s). Additionally, the twitter feed also functions as an independent log of past topics which can be used for a variety of historical contexts.
+
+In the current usage that was custom made for the Dopefish_lives community on Quakenet, this script extracts the first two elements from
+a topic string formatted as shown:
+
+    Streamer: <item one> | Game: <item 2> | Useless information
+Gets tweeted out as:
+
+    <item one> is playing <item two> @ Dopelives.com!
 
 Dependencies
 ====
