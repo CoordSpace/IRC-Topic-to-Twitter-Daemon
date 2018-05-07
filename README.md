@@ -9,7 +9,7 @@ In the current usage that was custom made for the Dopefish_lives community on Qu
 a topic string formatted as shown:
 
     Streamer: <item one> | Game: <item 2> | Useless information
-Gets tweeted out as:
+and tweets it out to the world in the following format:
 
     <item one> is playing <item two> @ Dopelives.com!
 
