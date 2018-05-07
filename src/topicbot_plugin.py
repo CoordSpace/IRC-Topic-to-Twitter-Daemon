@@ -119,7 +119,7 @@ class Plugin:
             self.bot.log.info("Joined channel {0}".format(channel))
             self.bot.notice('birdo', 'Twitter bot, ready for service!')
 
-    @command(permission='admin')
+    @command(permission='admin', quiet=True)
     def echo(self, mask, target, args):
         """Echo
 
@@ -128,7 +128,7 @@ class Plugin:
         self.bot.log.info("Recieved !echo from {0}".format(mask.nick))
         yield ' '.join(args['<message>'])
 
-    @command(permission='everyone')
+    @command(permission='everyone', quiet=True)
     def quotes(self, mask, target, args):
         """Echo
 
@@ -137,7 +137,7 @@ class Plugin:
         self.bot.log.info("Recieved !quotes from {0}".format(mask.nick))
         yield "Shit people say in >this chat - https://twitter.com/Dopefish_Quotes"
 
-    @command(permission='everyone')
+    @command(permission='everyone', quiet=True)
     def next(self, mask, target, args):
         """next: Ask the bot who will stream next.
 
@@ -152,7 +152,7 @@ class Plugin:
         else:
             self.cooldown_warning(mask.nick)
 
-    @command(permission='everyone')
+    @command(permission='everyone', quiet=True)
     def readthis(self, mask, target, args):
         """readthis: Inform users of the channel rules.
 
@@ -167,7 +167,7 @@ class Plugin:
         else:
             self.cooldown_warning(mask.nick)
 
-    @command(permission='everyone')
+    @command(permission='everyone', quiet=True)
     def notifications(self, mask, target, args):
         """notifications: Posts a link to the bot's twitter account.
 
@@ -208,4 +208,3 @@ class Plugin:
             for name, status in self.bot.send_tweet(final_message):
                 self.bot.log.info('Tweet to {0}: status - {1}'.format(name, status))
             self.bot.log.info('Tweet sent!')
-
