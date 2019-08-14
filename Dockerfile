@@ -18,5 +18,5 @@ USER appuser
 
 COPY src/ .
 
-CMD ["irc3", "-v", "-r", "config.ini"]
+CMD ["irc3", "config.ini"]
 
