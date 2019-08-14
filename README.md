@@ -113,7 +113,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [@CoordSpace](https://twitter.com/CoordSpace) - chris@coord.space
+Chris Earley - [@CoordSpace](https://twitter.com/CoordSpace) - chris@coord.space
 
 Project Link: [https://github.com/CoordSpace/IRC-Topic-to-Twitter-Daemon](https://github.com/CoordSpace/IRC-Topic-to-Twitter-Daemon)
 
