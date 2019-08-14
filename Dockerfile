@@ -12,7 +12,7 @@ WORKDIR /app
 
 COPY --from=base /wheels /wheels
 
-RUN pip install --no-cache /wheels/*
+RUN pip3.7 install --no-cache-dir /wheels/*
 
 USER appuser
 
