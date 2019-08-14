@@ -5,73 +5,6 @@ from random import choice
 from time import time, gmtime, strftime
 from infoextraction import ExtractInfo
 
-
-def greek_string(s):
-    '''
-        Replaces the first standard vowel in a string with an accented
-        unicode vowel. Useful to prevent annoying pings on IRC.
-    '''
-    before = u'aeiouyAEIOUY'
-    after = u'àèìòùÿÄÉÍÒÙÝ'
-    # our dict of normal to greeked vowels
-    trans = {i: j for i, j in zip(before, after)}
-
-    for i, c in enumerate(s):
-        if c in before:
-            # rebuild the string with our new greeked vowel
-            # taking the place of the first vowel found
-            greeked = s[:i] + trans[c] + s[i + 1:]
-            return greeked
-    # return the string untouched if there's nothing to change
-    return s
-
-
-def makeRoulette(nickname):
-    m = [
-        'Lets all kindly ask {0} to stream!',
-        'I think ... {0} should stream!',
-        'It\'s been a while since {0} last streamed.',
-        '{0}!',
-        'I just asked !larry and he said that {0} should stream!',
-        'If only {0} would stream some videogames on the internet.',
-        'Maybe if we focus really hard {0} will stream!',
-        '{0}?',
-        '{0}.',
-        'I have fond memories of {0} streams.',
-        'Lets all get comfy and wait for {0} to stream.',
-        'I bet {0} is setting up to stream as I type!',
-        'How about ... {0}? :3c',
-        'I hacked into the streamer channel and it looks like {0} is getting ready to stream!',
-        'What if {0} streamed some videogames?',
-        'Maybe if {0} is around, they could stream?',
-        'Don\'t let your {0} streams be dreams.',
-        'Believe in yourself and maybe one day {0} will stream!',
-        'Yo {0}, where the vidja at?',
-        'Lets all focus our positive energy towards {0}.',
-        'I hear that {0} knows who will be streaming next.',
-        '{0}. Streams. Yes!',
-        '{0} should stream!',
-        'I can never get enough of {0} streams!',
-        'There\'s no such thing as too much {0} livelive!',
-        'The world would be a better place if only {0} would stream.',
-        'I\'ll give 20 dopecoins to {0} if they stream.',
-        'Let\'s mix it up. How about if {0} streams a movie instead?',
-        '!p1ayed {0}',
-        '{0} streams are so comfy, I could go for one right now!',
-        'Maybe you should stream!',
-        'Lets put our heads together and think of who should stream.',
-        'You know what, no. How about YOU say who will stream next!',
-        '>implying someone will stream',
-        '(Pssst, {0} will be streaming next)',
-        'The streaming gods demand an offering! Decide amongst youselves who should be sacrificed.',
-        'Maybe we should just play videogames instead.',
-        'How about we all go read a book instead?',
-        'When was the last time you went outside?',
-        'Hey, remember when Po_ used to stream?',
-        'http://i.imgur.com/y7GDSmh.png']
-    return choice(m).format(nickname)
-
-
 @irc3.plugin
 class Plugin:
 
@@ -112,60 +45,6 @@ class Plugin:
             self.bot.log.info("Function {0}, not in cooldown!".format(func_name))
             self.times[func_name] = time()
             return True
-
-    @irc3.event(irc3.rfc.JOIN)
-    def say_hi(self, mask, channel, **kw):
-        if mask.nick == self.bot.nick:
-            self.bot.log.info("Joined channel {0}".format(channel))
-            self.bot.notice('birdo', 'Twitter bot, ready for service!')
-
-    @command(permission='admin', quiet=True)
-    def echo(self, mask, target, args):
-        """Echo
-
-            %%echo <message>...
-        """
-        self.bot.log.info("Recieved !echo from {0}".format(mask.nick))
-        yield ' '.join(args['<message>'])
-
-    @command(permission='everyone', quiet=True)
-    def quotes(self, mask, target, args):
-        """Echo
-
-            %%quotes
-        """
-        self.bot.log.info("Recieved !quotes from {0}".format(mask.nick))
-        yield "Shit people say in >this chat - https://twitter.com/Dopefish_Quotes"
-
-    @command(permission='everyone', quiet=True)
-    def next(self, mask, target, args):
-        """next: Ask the bot who will stream next.
-
-            %%next
-        """
-        self.bot.log.info("Recieved !next from {0}".format(mask.nick))
-        if self.is_cooled_down('next'):
-            # parse the channel list for OP users and pick a random one
-            nick = choice(list(self.bot.channels[target].modes['@']))
-            # greek it by mutating any vowels and sent it to the channel
-            yield makeRoulette(greek_string(nick))
-        else:
-            self.cooldown_warning(mask.nick)
-
-    @command(permission='everyone', quiet=True)
-    def readthis(self, mask, target, args):
-        """readthis: Inform users of the channel rules.
-
-            %%readthis [<username>]
-        """
-        self.bot.log.info("Recieved !readthis from {0}".format(mask.nick))
-        if self.is_cooled_down('readthis'):
-            if args['<username>']:
-                yield "{0}: Please read the channel rules - http://dopelives.com/newfriend.html".format(args['<username>'])
-            else:
-                yield "Please read the channel rules: http://dopelives.com/newfriend.html"
-        else:
-            self.cooldown_warning(mask.nick)
 
     @command(permission='everyone', quiet=True)
     def notifications(self, mask, target, args):
