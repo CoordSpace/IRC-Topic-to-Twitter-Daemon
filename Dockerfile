@@ -1,20 +1,22 @@
-from python:3.7.4-alpine3.9 as builder
-
-RUN mkdir /tmp/
-
-WORKDIR /install
+from python:3.7.4 as base
 
 COPY requirements.txt /tmp/requirements.txt
 
-RUN pip3.7 install --no-cache-dir -r /requirements.txt 
+RUN pip3.7 wheel --no-cache-dir --no-deps --wheel-dir /wheels -r /tmp/requirements.txt 
 
-RUN adduser -D -g '' appuser
+FROM python:3.7.3-slim
 
-WORKDIR /home/appuser
+RUN useradd -ms /bin/bash appuser
+
+WORKDIR /app
+
+COPY --from=base /wheels /wheels
+
+RUN pip install --no-cache /wheels/*
 
 USER appuser
 
-COPY src/* .
+COPY src/ .
 
-CMD ["irc3", "-v", "-r", "/etc/t2t-daemon/config.ini"]
+CMD ["irc3", "-v", "-r", "config.ini"]
 
